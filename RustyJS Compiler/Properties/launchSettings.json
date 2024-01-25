@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RustyJS Compiler": {
+      "commandName": "Project",
+      "commandLineArgs": "-f main.rsjs"
+    }
+  }
+}
