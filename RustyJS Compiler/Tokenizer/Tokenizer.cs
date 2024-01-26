@@ -28,7 +28,7 @@
 
             if (SEPARATORS.Contains(c)) {
                 token = token.Trim();
-                if (!string.IsNullOrEmpty(token))  tokens.Enqueue(new Token(GetTokenType(token), token));
+                if (!string.IsNullOrEmpty(token)) tokens.Enqueue(new Token(GetTokenType(token), token));
 
                 token = string.Empty;
                 if (c != ' ')
