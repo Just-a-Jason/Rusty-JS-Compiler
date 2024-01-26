@@ -1,5 +1,5 @@
 ﻿internal static class RustyFileSystem {
-    public static string? FindRsJsFile(string path) {
+    public static string? FindRustyFile(string path) {
         if (Path.Exists(path)) return path;
 
         string fileName = Path.GetFileNameWithoutExtension(path);
@@ -36,7 +36,7 @@
         return FormatFileSize(fileSizeInBytes);
     }
 
-    private static bool IsFileEmpty(string content) => content.Trim() == String.Empty;
+    public static bool IsFileEmpty(string content) => content.Trim() == String.Empty;
     private static string FormatFileSize(long bytes) {
         string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 

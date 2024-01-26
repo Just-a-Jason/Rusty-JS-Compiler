@@ -4,23 +4,25 @@ using System.Reflection;
 
 internal class RustyCompiler {
     private List<string> imports = new List<string>();
-    private IReadOnlyList<Token> _tokens;
+    private Queue<Token> _tokens;
     private int _currentToken = 0;
     private string _outPath;
-    private string? _entry;
+    private string? _entryPath;
+
+    private RustyParser parser;
         
     public RustyCompiler(string entry, string outputPath) {
-        this._entry = RustyFileSystem.FindRsJsFile(entry);
+        this._entryPath = RustyFileSystem.FindRustyFile(entry);
         this._outPath = outputPath;
     }
 
     public void CompileToJavaScript() {
-        if (this._entry == null) RustyErrorHandler.Throw("\tFile not found.", 100);
+        if (this._entryPath == null) RustyErrorHandler.Throw("\tFile not found.", 100);
         DateTime startTime = DateTime.Now;
         
-        string text = RustyFileSystem.ReadRustyFile(this._entry);
+        string text = RustyFileSystem.ReadRustyFile(this._entryPath);
             
-        Importer importer = new Importer();
+        RustyImporter importer = new RustyImporter();
         text = importer.ResolveImports(text);
 
         Tokenizer tokenizer = new Tokenizer();
@@ -29,12 +31,12 @@ internal class RustyCompiler {
         this.SaveTokens();
 
         // Context isolation
+        string outJS = this.ProcessTokens();
 
-        string outJS = this.ProcessTokens(_tokens);
-        if (outJS.Trim() != String.Empty) outJS = "(()=>{" + outJS + "})();";
+        if (RustyFileSystem.IsFileEmpty(outJS)) outJS = "(()=>{" + outJS + "})();";
 
         if (this._outPath == "./" || Path.GetFileName(this._outPath).Trim() == String.Empty) {
-            string fileName = Path.GetFileNameWithoutExtension(this._entry); 
+            string fileName = Path.GetFileNameWithoutExtension(this._entryPath); 
             this._outPath += $"{fileName}.js"; 
         }
 
@@ -44,39 +46,40 @@ internal class RustyCompiler {
 
         if(!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-        string entrySize = RustyFileSystem.GetFileSize(this._entry);
-
         RustyFileSystem.SaveFile(this._outPath, outJS);
-
-        string outSize = RustyFileSystem.GetFileSize(this._outPath);
-
         TimeSpan compileTime = DateTime.Now - startTime;
 
-        Console.ForegroundColor = ConsoleColor.Blue;
-        string inputPathFileName = Path.GetFileName(this._entry);
-        Console.Write($"[{inputPathFileName}]");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write($"({entrySize})");
-
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write($" => ");
-
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        string outPathFileName = Path.GetFileName(this._outPath);
-        Console.Write($"[{outPathFileName}]");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write($"({outSize})");
-
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write($"[Compiled in: ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.Write($"{compileTime.Milliseconds}ms");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("]");
+        DisplayOutput(compileTime.Milliseconds);
     }
 
-    public void CompileToRustyJS () { 
+    public void CompileToRusty () { 
+    }
+
+    private void DisplayOutput(int milisecounds) {
+        Console.Write($"[");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.Write($"{this._entryPath}");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("]");
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write($" ({RustyFileSystem.GetFileSize(this._entryPath)}) ");
+
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write("=>");
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write($" [{this._outPath}]");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write($" ({RustyFileSystem.GetFileSize(this._outPath)}) ");
+
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write("[Compiled in: ");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.Write($"{milisecounds}ms");
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write("]\n");
+        Console.ForegroundColor = ConsoleColor.White;
     }
 
     private void SaveTokens() {
@@ -87,52 +90,46 @@ internal class RustyCompiler {
         foreach (var token in this._tokens) sw.WriteLine("{0} {1}", token.Text, token.TokenType);
     }
 
-    private string ProcessTokens(IReadOnlyList<Token> tokens) {
+    private string ProcessTokens() {
         string output = String.Empty;
 
-        while (this._currentToken < tokens.Count) {
-            output += this.ProcessToken(tokens[this._currentToken]);
-            this._currentToken++;
-        }
+        while (_tokens.Count > 0) output += ProcessToken(_tokens.Dequeue());
 
         return output;
     }
   
 
-    private string ProcessToken(Token token)
-    {
+    private string ProcessToken(Token token) {
         string output = String.Empty;
 
         switch (token.TokenType) {
             case TokenType.Keyword:
                 if (token.Text == "fn") {
                     output += "function ";
-                    output += GetNextToken().Text;
+                    output += ConsumeToken().Text;
                     this._currentToken++;
 
-                    output += this.ExecuteTokensUntil( ")") + "){";
+                    output += ExecuteTokensUntil( ")") + "){";
                     this._currentToken++;
-                    output += this.ExecuteTokensUntil( "end");
+                    output += ExecuteTokensUntil( "end");
 
                     output += "}";
                 }
 
                 if (token.Text == "class") {
                     output += "class ";
-                    output += GetNextToken(1).Text + "{";
-                    this._currentToken++;
+                    output += ConsumeToken().Text + "{";
 
-                    output += this.ExecuteTokensUntil("end");
+                    output += ExecuteTokensUntil("end");
 
                     output += "}";
                 }
 
                 if (token.Text == "$") return "this";
-                if (token.Text == "log" && this._tokens[this._currentToken + 1].Text == "!") {
+                if (token.Text == "log" && ConsumeToken().Text == "!") {
                     output += "console.log";
-                    this._currentToken += 2;
 
-                    output += this.ExecuteTokensUntil(")");
+                    output += ExecuteTokensUntil(")");
 
                     output += ")";
                 }
@@ -159,20 +156,18 @@ internal class RustyCompiler {
 
     private string ExecuteTokensUntil(string token) {
         string output = String.Empty;
-        while (this._tokens[this._currentToken].Text != token) {
-            output += ProcessToken(this._tokens[this._currentToken]);
-            this._currentToken++;
-        }
+
+        while (ConsumeToken().Text != token) output += ProcessToken(ConsumeToken());
+        
         return output;
     }
-    private Token GetNextToken(int skip = 1) {
-        this._currentToken += skip;
-        return this._tokens[this._currentToken];
-    } 
+
     public static string GetCompilerVersion() {
         Assembly executingAssembly = Assembly.GetExecutingAssembly();
         var fieVersionInfo = FileVersionInfo.GetVersionInfo(executingAssembly.Location);
         return fieVersionInfo.FileVersion;
-    }   
+    }
+
+    private Token ConsumeToken() => this._tokens.Dequeue();
 }
 

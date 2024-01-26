@@ -6,21 +6,19 @@
        "class", "log", "mut", "init", "query", "umut", "new", "static"
     };
 
-
-    public IReadOnlyList<Token> TokenizeText(string text) {
-        string [] lines = text.Split('\n');
-        List<Token> tokens = new List<Token>();
+    public Queue<Token> TokenizeText(string text) {
+        string[] lines = text.Split('\n');
+        Queue<Token> tokens = new Queue<Token>();
 
         foreach (string line in lines) {
             if (line.Trim() == String.Empty || line.StartsWith('#')) continue;
-            tokens.AddRange(Tokenize(line));
+            Tokenize(line, tokens);
         }
 
-        return tokens.AsReadOnly();
+        return tokens;
     }
 
-    private List<Token> Tokenize(string line) {
-        List<Token> tokens = new List<Token>();
+    private void Tokenize(string line, Queue<Token> tokens) {
 
         string token = string.Empty;
         for (int i = 0; i < line.Length; i++) {
@@ -29,21 +27,18 @@
             if (c == '\t') continue;
 
             if (SEPARATORS.Contains(c)) {
-
                 token = token.Trim();
-                if (!string.IsNullOrEmpty(token))  tokens.Add(new Token(GetTokenType(token), token));
+                if (!string.IsNullOrEmpty(token))  tokens.Enqueue(new Token(GetTokenType(token), token));
 
                 token = string.Empty;
                 if (c != ' ')
-                tokens.Add(new Token(GetTokenType(c.ToString()), c.ToString()));
+                tokens.Enqueue(new Token(GetTokenType(c.ToString()), c.ToString()));
             }
             else token += c;
         }
 
         token = token.Trim();
-        if (!string.IsNullOrEmpty(token)) tokens.Add(new Token(GetTokenType(token), token));
-
-        return tokens;
+        if (!string.IsNullOrEmpty(token)) tokens.Enqueue(new Token(GetTokenType(token), token));
     }
 
     private TokenType GetTokenType(string token) {
