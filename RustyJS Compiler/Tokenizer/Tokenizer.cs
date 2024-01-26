@@ -4,11 +4,8 @@ internal class Tokenizer {
     private const string SEPARATORS = "(){}&<>!=+/.$,;\'\" ";
 
     private static readonly string[] keywords = new string[] {
-       "fn", "ret", 
-       "end", "base", 
-       "$", "namespace",
-       "class", "log", "mut", 
-       "init", "query", "umut"
+       "fn", "ret", "end", "base",  "$", "namespace",
+       "class", "log", "mut", "init", "query", "umut"
     };
 
 
@@ -24,39 +21,28 @@ internal class Tokenizer {
         return tokens.AsReadOnly();
     }
 
-    private List<Token> Tokenize(string line)
-    {
+    private List<Token> Tokenize(string line) {
         List<Token> tokens = new List<Token>();
 
         string token = string.Empty;
-        for (int i = 0; i < line.Length; i++)
-        {
+        for (int i = 0; i < line.Length; i++) {
             char c = line[i];
 
             if (c == '\t') continue;
 
-            if (SEPARATORS.Contains(c))
-            {
+            if (SEPARATORS.Contains(c)) {
+
                 token = token.Trim();
-                if (!string.IsNullOrEmpty(token))
-                {
-                    tokens.Add(new Token(GetTokenType(token), token));
-                }
+                if (!string.IsNullOrEmpty(token))  tokens.Add(new Token(GetTokenType(token), token));
 
                 token = string.Empty;
                 tokens.Add(new Token(GetTokenType(c.ToString()), c.ToString()));
             }
-            else
-            {
-                token += c;
-            }
+            else token += c;
         }
 
         token = token.Trim();
-        if (!string.IsNullOrEmpty(token))
-        {
-            tokens.Add(new Token(GetTokenType(token), token));
-        }
+        if (!string.IsNullOrEmpty(token)) tokens.Add(new Token(GetTokenType(token), token));
 
         return tokens;
     }
