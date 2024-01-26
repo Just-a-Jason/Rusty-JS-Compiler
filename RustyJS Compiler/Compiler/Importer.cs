@@ -36,13 +36,13 @@
         while (tokens[i].Text != ";") importPath += tokens[i++].Text;
 
         importPath = importPath.Trim();
-        path = RSJSFileSystem.FindRsJsFile(importPath);
+        path = RustyFileSystem.FindRsJsFile(importPath);
 
-        if (path == null) RSJSErrorHandler.Throw($"File: {Path.GetFileName(importPath)} does not exists.", 200);
+        if (path == null) RustyErrorHandler.Throw($"File: {Path.GetFileName(importPath)} does not exists.", 200);
 
         
         this._imports.Add(import,importPath);
-        outFile.InsertRange(0,RSJSFileSystem.ReadRsJSFile(path).Split("\n").ToList()); 
+        outFile.InsertRange(0,RustyFileSystem.ReadRustyFile(path).Split("\n").ToList()); 
     }
     private string JoinContent(List<string> lines) {
         string output = string.Empty;

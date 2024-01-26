@@ -1,4 +1,4 @@
-﻿internal static class RSJSFileSystem {
+﻿internal static class RustyFileSystem {
     public static string? FindRsJsFile(string path) {
         if (Path.Exists(path)) return path;
 
@@ -13,7 +13,7 @@
         return null;
     }
 
-    public static string ReadRsJSFile(string path) {
+    public static string ReadRustyFile(string path) {
         using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
         using var sr = new StreamReader(fs);
 
@@ -36,6 +36,7 @@
         return FormatFileSize(fileSizeInBytes);
     }
 
+    private static bool IsFileEmpty(string content) => content.Trim() == String.Empty;
     private static string FormatFileSize(long bytes) {
         string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 
@@ -50,4 +51,5 @@
 
         return $"{fileSize:F2}{sizeSuffixes[i]}";
     }
+
 }

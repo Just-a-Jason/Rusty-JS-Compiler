@@ -10,15 +10,15 @@ internal class RustyCompiler {
     private string? _entry;
         
     public RustyCompiler(string entry, string outputPath) {
-        this._entry = RSJSFileSystem.FindRsJsFile(entry);
+        this._entry = RustyFileSystem.FindRsJsFile(entry);
         this._outPath = outputPath;
     }
 
     public void CompileToJavaScript() {
-        if (this._entry == null) RSJSErrorHandler.Throw("\tFile not found.", 100);
+        if (this._entry == null) RustyErrorHandler.Throw("\tFile not found.", 100);
         DateTime startTime = DateTime.Now;
         
-        string text = RSJSFileSystem.ReadRsJSFile(this._entry);
+        string text = RustyFileSystem.ReadRustyFile(this._entry);
             
         Importer importer = new Importer();
         text = importer.ResolveImports(text);
@@ -44,11 +44,11 @@ internal class RustyCompiler {
 
         if(!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-        string entrySize = RSJSFileSystem.GetFileSize(this._entry);
+        string entrySize = RustyFileSystem.GetFileSize(this._entry);
 
-        RSJSFileSystem.SaveFile(this._outPath, outJS);
+        RustyFileSystem.SaveFile(this._outPath, outJS);
 
-        string outSize = RSJSFileSystem.GetFileSize(this._outPath);
+        string outSize = RustyFileSystem.GetFileSize(this._outPath);
 
         TimeSpan compileTime = DateTime.Now - startTime;
 
