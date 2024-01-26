@@ -9,4 +9,8 @@
     <AssemblyName>RSJS</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Compiler\AST\Nodes\" />
+  </ItemGroup>
+
 </Project>

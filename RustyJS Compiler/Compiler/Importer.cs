@@ -12,12 +12,13 @@
 
         return this._outFile;
     }
+
     private string ImportFile() {
         List<string> lines = this._outFile.Split("\n").ToList();
         List<string> outFile = new List<string>(lines);
 
         foreach (string line in lines) { 
-            if (!line.Contains("@import")) continue;
+            if (!line.Contains(IMPORT_KEYWORD)) continue;
             ResolveImport(line, outFile);
         }
        
@@ -32,7 +33,7 @@
         string? path;
         int i = 1;
 
-        while (tokens[i].text != ";") importPath += tokens[i++].text;
+        while (tokens[i].Text != ";") importPath += tokens[i++].Text;
 
         importPath = importPath.Trim();
         path = RSJSFileSystem.FindRsJsFile(importPath);

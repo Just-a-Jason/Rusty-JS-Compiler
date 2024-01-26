@@ -1,18 +1,17 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-
-class Program {
+﻿class Program {
     static void Main(string[] args) {
        RunCLI(args);
     }
-    static void RunCLI(string[] args) {
+    static void RunCLI(string[] args)
+    {
         if (args.Length < 1) return;
         string flag = args[0];
 
-        switch (flag) {
+        switch (flag)
+        {
             case "--version":
             case "-v":
-                string version = RSJSCompiler.GetCompilerVersion();
+                string version = RustyCompiler.GetCompilerVersion();
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write($"Rusty JS Compiler");
@@ -22,7 +21,8 @@ class Program {
                 break;
             case "-f":
                 string ouputPath = "./";
-                if (args.Length < 2) {
+                if (args.Length < 2)
+                {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("Rusty JS Compiler ");
                     Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -33,8 +33,10 @@ class Program {
                     return;
                 }
 
-                if (args.Length >= 3 && args[2] == "-o") {
-                    if (args.Length < 4) {
+                if (args.Length >= 3 && args[2] == "-o")
+                {
+                    if (args.Length < 4)
+                    {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.Write("Rusty JS Compiler ");
                         Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -46,7 +48,7 @@ class Program {
                     }
                     ouputPath = args[3];
                 }
-                new RSJSCompiler(args[1], ouputPath).CompileToJavaScript();
+                new RustyCompiler(args[1], ouputPath).CompileToJavaScript();
                 break;
             default:
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -56,7 +58,7 @@ class Program {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write(" is not a valid flag for RustyJS Compiler.");
                 Console.ForegroundColor = ConsoleColor.White;
-            break;
+                break;
         }
     }
 }

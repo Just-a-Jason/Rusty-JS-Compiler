@@ -27,4 +27,27 @@
 
         sw.Write(content);
     }
+
+    public static string GetFileSize(string filePath)
+    {
+        FileInfo fileInfo = new FileInfo(filePath);
+        long fileSizeInBytes = fileInfo.Length;
+
+        return FormatFileSize(fileSizeInBytes);
+    }
+
+    private static string FormatFileSize(long bytes) {
+        string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+        int i = 0;
+        double fileSize = bytes;
+
+        while (fileSize >= 1024 && i < sizeSuffixes.Length - 1)
+        {
+            fileSize /= 1024;
+            i++;
+        }
+
+        return $"{fileSize:F2}{sizeSuffixes[i]}";
+    }
 }

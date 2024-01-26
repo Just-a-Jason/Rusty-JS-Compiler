@@ -1,9 +1,9 @@
 ﻿internal struct Token {
-    public TokenType tokenType;
-    public string text;
+    public TokenType TokenType { get;  }
+    public string Text { get; }
 
     public Token(TokenType tokenType, string text) {
-        this.tokenType = tokenType;
-        this.text = text;
+        this.TokenType = tokenType;
+        this.Text = text;
     }
 }

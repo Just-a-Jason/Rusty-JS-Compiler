@@ -1,11 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-
-internal class Tokenizer {
+﻿internal class Tokenizer {
     private const string SEPARATORS = "(){}&<>!=+/.$,;\'\" ";
 
     private static readonly string[] keywords = new string[] {
        "fn", "ret", "end", "base",  "$", "namespace",
-       "class", "log", "mut", "init", "query", "umut"
+       "class", "log", "mut", "init", "query", "umut", "new", "static"
     };
 
 
@@ -36,6 +34,7 @@ internal class Tokenizer {
                 if (!string.IsNullOrEmpty(token))  tokens.Add(new Token(GetTokenType(token), token));
 
                 token = string.Empty;
+                if (c != ' ')
                 tokens.Add(new Token(GetTokenType(c.ToString()), c.ToString()));
             }
             else token += c;
@@ -55,19 +54,26 @@ internal class Tokenizer {
             case "+": case "-":
             case "*": case "/":
                 return TokenType.MathOperator;
+            
             case "0": case "1":
             case "2": case "3":
             case "4": case "5":
             case "6": case "7":
             case "8": case "9":
                 return TokenType.Number;
+            
             case "'":
             case "\"":
                 return TokenType.StringLiteral;
-            case "str": case "i32": case "f32":
+            
+            case "i8": case "i16": case "i32": case "i128":
+            case "str": case "f32": case "f64":
+            case "u8": case "u16": case "u32": case "u64": case "u128":
                 return TokenType.VariableType;
+            
             case "public": case "private": case "protected":
                 return TokenType.AccessModifier;
+
             case "end": return TokenType.EndToken;
             case ";": return TokenType.EOL;
             default: return TokenType.Identifier;
