@@ -48,9 +48,9 @@ Hi there! This is my compiler for Rusty JS!
 ```
 
 #### Commands
-`RSJS -v`
-`RSJS -f file.rsjs`
-`RSJS -f file.rsjs -o build.js`
+`RSC -v`
+`RSC -f file.rsjs`
+`RSC -f file.rsjs -o build.js`
 
 ![logo-rsjs](https://github.com/Just-a-Jason/Rusty-JS-Compiler/assets/88512392/17cb5674-1559-4dcc-9ecf-8b9298fa7d7f)
 
