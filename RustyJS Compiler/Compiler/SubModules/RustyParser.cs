@@ -9,6 +9,11 @@
 
     }
 
+    private AbstractSyntaxTree GenerateAST() {
+        AbstractSyntaxTree tree = new AbstractSyntaxTree();
+        return tree;
+    }
+
 
 }
 

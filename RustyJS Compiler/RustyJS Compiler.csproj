@@ -6,7 +6,7 @@
     <RootNamespace>RustyJS_Compiler</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>RSJS</AssemblyName>
+    <AssemblyName>RSC</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

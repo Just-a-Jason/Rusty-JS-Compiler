@@ -21,11 +21,20 @@ internal class RustyCompiler {
         content = importer.ResolveImports(content);
 
         Tokenizer tokenizer = new Tokenizer();
-        Queue<Token> tokens = tokenizer.TokenizeText(content);
+        Queue<Token> tokens = tokenizer.Tokenize(content);
 
 
         RustyParser parser = new RustyParser(tokens);
         parser.ParseTokens();
+
+        File.WriteAllText("tokens.txt", content);
+        using var fs = new FileStream("tokens.txt", FileMode.OpenOrCreate, FileAccess.Write);
+        using var sw = new StreamWriter(fs);
+
+        while (tokens.Count > 0) {
+            Token token = tokens.Dequeue();
+            sw.WriteLine("{0}: {1}",token.TokenType,token.Text);
+        }
 
         if (this._outPath == "./" || Path.GetFileName(this._outPath).Trim() == String.Empty) {
             string fileName = Path.GetFileNameWithoutExtension(this._entryPath); 

@@ -6,7 +6,7 @@
         Console.Write("   (Rusty JS Compiler)   ");
         Console.Write("║");
         Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.Write($" RSJS:{errorNo} \n");
+        Console.Write($" RSJS:{errorNo.ToString("X")} \n");
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write("║");
         Console.Write($"   {error}   ");

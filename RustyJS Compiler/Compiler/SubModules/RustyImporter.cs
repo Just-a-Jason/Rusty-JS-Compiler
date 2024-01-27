@@ -11,7 +11,7 @@
     private void ResolveImport(string import, List<string> outFile) {
         if (_imports.Keys.Contains(import)) { outFile.Remove(import); return; }
 
-        Queue<Token> tokens = this._tokenizer.TokenizeText(import);
+        Queue<Token> tokens = this._tokenizer.Tokenize(import);
         string importPath = String.Empty;
         string? path;
 
