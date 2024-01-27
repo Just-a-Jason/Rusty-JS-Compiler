@@ -12,7 +12,7 @@ internal class RustyCompiler {
     }
 
     public void CompileToJavaScript() {
-        if (this._entryPath == null) RustyErrorHandler.Throw("\tFile not found.", 100);
+        if (this._entryPath == null) RustyErrorHandler.Error("\tFile not found.", 100);
         DateTime startTime = DateTime.Now;
         
         string content = RustyFileSystem.ReadRustyFile(_entryPath);

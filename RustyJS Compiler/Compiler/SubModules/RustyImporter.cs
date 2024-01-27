@@ -24,7 +24,7 @@
         importPath = importPath.Trim();
         path = RustyFileSystem.FindRustyFile(importPath);
 
-        if (path == null) RustyErrorHandler.Throw($"File: {Path.GetFileName(importPath)} does not exists.", 200);
+        if (path == null) RustyErrorHandler.Error($"File: {Path.GetFileName(importPath)} does not exists.", 200);
 
         
         _imports.Add(import,importPath);

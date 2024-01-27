@@ -7,10 +7,13 @@
         { "end", TokenType.EndKeyWord },
         { "namespace", TokenType.NameSpaceKeyWord },
         { "ret", TokenType.ReturnKeyWord },
-        { "rustyCompiler", TokenType.CompilerRuleSet }
+        { "rustyCompiler", TokenType.CompilerRuleSet },
+        { "true", TokenType.BooleanValue },
+        { "false", TokenType.BooleanValue },
+        { "const", TokenType.ConstantKeyWord }
     };
 
-    private Queue<char> _chars;
+    private Queue<char>? _chars;
     private long _line = 1;
     private long _pos = 0;
 
@@ -21,70 +24,57 @@
 
         while (_chars.Count > 0) {
 
-            char currentChar = _chars.Peek(); 
+            char chr = _chars.Peek(); 
+            
+            if(chr == '\n') _line++;
 
-            switch (currentChar)
-            {
+            switch (chr) {
                 case '(':
-                    tokens.Enqueue(Token(TokenType.OpenPrent, currentChar));
+                    tokens.Enqueue(Token(TokenType.OpenPrent, chr));
                     Consume();
                     continue;
                 case ')':
-                    tokens.Enqueue(Token(TokenType.ClosePrent, currentChar));
+                    tokens.Enqueue(Token(TokenType.ClosePrent, chr));
                     Consume();
                     continue;
                 case '*':
                 case '+':
                 case '-':
                 case '/':
-                    tokens.Enqueue(Token(TokenType.BinaryOperator, currentChar));
+                    tokens.Enqueue(Token(TokenType.BinaryOperator, chr));
                     Consume();
                     continue;
                 case '=':
-                    tokens.Enqueue(Token(TokenType.Equals, currentChar));
+                    tokens.Enqueue(Token(TokenType.Equals, chr));
+                    Consume();
+                    continue;
+                case ';':
+                    tokens.Enqueue(Token(TokenType.Semi, chr));
                     Consume();
                     continue;
             }
 
-            if (char.IsDigit(currentChar))
-            {
+            if (char.IsDigit(chr)) {
                 string number = string.Empty;
 
-                while (_chars.Count > 0 && (char.IsDigit(_chars.Peek()) || _chars.Peek() == '.'))
-                {
-                    number += Consume();
-                }
-
+                while (_chars.Count > 0 && (char.IsDigit(_chars.Peek()) || _chars.Peek() == '.')) number += Consume();
+                
                 tokens.Enqueue(Token(TokenType.Number, number));
             }
 
-            else if (char.IsLetter(currentChar))
-            {
+            else if (char.IsLetter(chr)) {
                 string identifier = string.Empty;
 
-                while (_chars.Count > 0 && char.IsLetter(_chars.Peek()))
-                {
-                    identifier += Consume();
-                }
+                while (_chars.Count > 0 && char.IsLetter(_chars.Peek())) identifier += Consume();
+                
 
                 if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
-                {
                     tokens.Enqueue(Token(reservedKeyWord, identifier));
-                }
-                else
-                {
-                    tokens.Enqueue(Token(TokenType.Identifier, identifier));
-                }
+                else tokens.Enqueue(Token(TokenType.Identifier, identifier));
             }
-            else if (IsSkippable(currentChar))
-            {
-                Consume();
-                continue;
-            }
-            else
-            {
-                RustyErrorHandler.Throw($"Unrecognized character \"{currentChar}\" on position: (chr: {_pos}, line: {_line})", 550);
-            }
+
+            else if (IsSkippable(chr)) { Consume(); continue;}
+            else RustyErrorHandler.Error($"Unrecognized character \"{chr}\" on position: (chr: {_pos}, line: {_line})", 550);
         }
 
         return tokens;

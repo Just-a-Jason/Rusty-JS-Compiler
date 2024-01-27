@@ -1,5 +1,5 @@
 ﻿internal class RustyErrorHandler {
-    public static void Throw(string error, int errorNo) {
+    public static void Error(string error, int errorNo) {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write("╔══════════════════════════════════════════════╗\n");
         Console.Write("║");
@@ -15,5 +15,9 @@
         Console.ForegroundColor = ConsoleColor.White;
 
         Environment.Exit(1);
+    }
+
+    public static void Warning() {
+
     }
 }
