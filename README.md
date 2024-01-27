@@ -54,4 +54,4 @@ Hi there! This is my compiler for Rusty JS!
 
 ![logo-rsjs](https://github.com/Just-a-Jason/Rusty-JS-Compiler/assets/88512392/17cb5674-1559-4dcc-9ecf-8b9298fa7d7f)
 
-> It's still on progress!﻿
+> It's still in progress!﻿
