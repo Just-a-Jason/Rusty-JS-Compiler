@@ -12,6 +12,10 @@ internal class RustyParser {
         while (EndOfFile()) {
             tree.Root.Body.Add(ParseStatement());
         }
+
+        RustyInterpreter interpreter = new RustyInterpreter();
+        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
+
         tree.VisualizeTree();
     }
 
