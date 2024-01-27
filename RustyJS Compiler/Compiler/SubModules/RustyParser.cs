@@ -19,6 +19,33 @@ internal class RustyParser {
         return ParseExpression();
     }
 
+    private ExpressionNode ParseExpression() {
+        return ParseAdditiveExpression();
+    }
+    private ExpressionNode ParseAdditiveExpression() {
+        ExpressionNode left = ParseMultiplictitiveExpression();
+
+        while (CurrentToken().Text == "+" || CurrentToken().Text == "-") {
+            string Operator = ConsumeToken().Text;
+            ExpressionNode right = ParseMultiplictitiveExpression();
+
+            left = new BinaryExpressionNode(left, right, Operator);
+        }
+
+        return left;
+    }
+    private ExpressionNode ParseMultiplictitiveExpression() {
+        ExpressionNode left = ParsePrimaryExpression();
+
+        while (CurrentToken().Text == "/" || CurrentToken().Text == "*" || CurrentToken().Text == "%") {
+            string Operator = ConsumeToken().Text;
+            ExpressionNode right = ParsePrimaryExpression();
+
+            left = new BinaryExpressionNode(left, right, Operator);
+        }
+
+        return left;
+    }
     private ExpressionNode ParsePrimaryExpression() {
         Token tk = CurrentToken();
 
@@ -38,41 +65,7 @@ internal class RustyParser {
         }
     }
 
-    private ExpressionNode ParseAdditiveExpression() {
-        ExpressionNode left = ParseMultiplictitiveExpression();
-
-        while (CurrentToken().Text == "+" || CurrentToken().Text == "-") {
-            string Operator = ConsumeToken().Text;
-            ExpressionNode right = ParseMultiplictitiveExpression();
-
-            left = new BinaryExpressionNode(left, right, Operator);
-        }
-
-        return left;
-    }
-
-    private ExpressionNode ParseMultiplictitiveExpression() {
-        ExpressionNode left = ParsePrimaryExpression();
-
-        while (CurrentToken().Text == "/" || CurrentToken().Text == "*" || CurrentToken().Text == "%")
-        {
-            string Operator = ConsumeToken().Text;
-            ExpressionNode right = ParsePrimaryExpression();
-
-            left = new BinaryExpressionNode(left, right, Operator);
-        }
-
-        return left;
-    }
-
-    private ExpressionNode ParseExpression() {
-        return ParseAdditiveExpression();
-    }
-
-    private ProgramNode CreateProgramRootNode() {
-        ProgramNode program = new ProgramNode();
-        return program;
-    }
+    private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
     private Token Expect(TokenType type, string errorMsg) {
         Token tk = ConsumeToken();
@@ -81,7 +74,7 @@ internal class RustyParser {
     }
 
     private bool EndOfFile() => CurrentToken().TokenType != TokenType.EOF;
-    private Token CurrentToken() => _tokens.Peek();
     private Token ConsumeToken() => _tokens.Dequeue();
+    private Token CurrentToken() => _tokens.Peek();
 }
 
