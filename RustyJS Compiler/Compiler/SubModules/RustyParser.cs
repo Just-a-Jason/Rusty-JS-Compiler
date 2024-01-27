@@ -54,6 +54,9 @@ internal class RustyParser {
                 return new IdentifierNode(ConsumeToken().Text);
             case TokenType.Number:
                 return new NumericLiteralNode(double.Parse(ConsumeToken().Text, CultureInfo.InvariantCulture));
+            case TokenType.Null:
+                ConsumeToken();
+                return new NullLiteralNode();
             case TokenType.OpenPrent:
                 ConsumeToken();
                 ExpressionNode value = ParseExpression();
