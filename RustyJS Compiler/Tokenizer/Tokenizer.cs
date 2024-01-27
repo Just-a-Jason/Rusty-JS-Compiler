@@ -66,7 +66,6 @@
                 string identifier = string.Empty;
 
                 while (_chars.Count > 0 && char.IsLetter(_chars.Peek())) identifier += Consume();
-                
 
                 if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
                     tokens.Enqueue(Token(reservedKeyWord, identifier));
@@ -77,6 +76,7 @@
             else RustyErrorHandler.Error($"Unrecognized character \"{chr}\" on position: (chr: {_pos}, line: {_line})", 550);
         }
 
+        tokens.Enqueue(Token(TokenType.EOF, "EndOfFile"));
         return tokens;
     }
 

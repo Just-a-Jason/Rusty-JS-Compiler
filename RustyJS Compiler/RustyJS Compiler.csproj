@@ -14,8 +14,4 @@
     <Content Include="logo-rsjs.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Compiler\AST\Nodes\" />
-  </ItemGroup>
-
 </Project>

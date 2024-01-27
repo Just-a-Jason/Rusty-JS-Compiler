@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-
 internal class RustyCompiler {
+    private int _compilationTime;
     private string? _entryPath;
     private string _outPath;
         
@@ -13,6 +13,8 @@ internal class RustyCompiler {
 
     public void CompileToJavaScript() {
         if (this._entryPath == null) RustyErrorHandler.Error("\tFile not found.", 100);
+        
+        CompilerOptions options = new CompilerOptions();
         DateTime startTime = DateTime.Now;
         
         string content = RustyFileSystem.ReadRustyFile(_entryPath);
@@ -27,30 +29,25 @@ internal class RustyCompiler {
         RustyParser parser = new RustyParser(tokens);
         parser.ParseTokens();
 
-        File.WriteAllText("tokens.txt", content);
-        using var fs = new FileStream("tokens.txt", FileMode.OpenOrCreate, FileAccess.Write);
-        using var sw = new StreamWriter(fs);
+        this._compilationTime = (DateTime.Now - startTime).Milliseconds;
+        SaveOutputFile();
+    }
 
-        while (tokens.Count > 0) {
-            Token token = tokens.Dequeue();
-            sw.WriteLine("{0}: {1}",token.TokenType,token.Text);
-        }
-
+    private void SaveOutputFile() {
         if (this._outPath == "./" || Path.GetFileName(this._outPath).Trim() == String.Empty) {
-            string fileName = Path.GetFileNameWithoutExtension(this._entryPath); 
-            this._outPath += $"{fileName}.js"; 
+            string fileName = Path.GetFileNameWithoutExtension(this._entryPath);
+            this._outPath += $"{fileName}.js";
         }
 
-        else if(Path.GetExtension(this._outPath).Trim() == String.Empty) this._outPath += ".js";
-            
+        else if (Path.GetExtension(this._outPath).Trim() == String.Empty) this._outPath += ".js";
+
         string? path = Directory.GetParent(_outPath).FullName;
 
-        if(!Directory.Exists(path)) Directory.CreateDirectory(path);
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
         RustyFileSystem.SaveFile(this._outPath, "");
-        TimeSpan compileTime = DateTime.Now - startTime;
 
-        DisplayOutput(compileTime.Milliseconds);
+        DisplayOutput(this._compilationTime);
     }
 
     public void CompileToRusty () { 

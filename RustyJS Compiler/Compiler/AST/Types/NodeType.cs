@@ -1,5 +1,5 @@
 ﻿internal enum NodeType {
-    Function, Variable, String, 
-    Root
+    NumericLiteral, Identifier, BinaryExpression,
+    Program
 }
 
