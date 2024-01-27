@@ -1,82 +1,91 @@
 ﻿internal class Tokenizer {
-    private const string SEPARATORS = "(){}&<>!=+/.$,;\'\" ";
 
-    private static readonly string[] keywords = new string[] {
-       "fn", "ret", "end", "base",  "$", "namespace",
-       "class", "log", "mut", "init", "query", "umut", "new", "static"
+    private Dictionary<string, TokenType> KEYWORDS = new Dictionary<string, TokenType>() {
+        { "umut", TokenType.UmutKeyword },
+        { "mut", TokenType.MutKeyword },
+        { "fn", TokenType.FunctionKeyWord },
+        { "end", TokenType.EndKeyWord },
+        { "namespace", TokenType.NameSpaceKeyWord },
+        { "ret", TokenType.ReturnKeyWord },
+        { "rustyCompiler", TokenType.CompilerRuleSet },
+        { "true", TokenType.BooleanValue },
+        { "false", TokenType.BooleanValue },
+        { "const", TokenType.ConstantKeyWord }
     };
 
+    private Queue<char>? _chars;
+    private long _line = 1;
+    private long _pos = 0;
 
-    public IReadOnlyList<Token> TokenizeText(string text) {
-        string [] lines = text.Split('\n');
-        List<Token> tokens = new List<Token>();
+    public Queue<Token> Tokenize(string input) {
 
-        foreach (string line in lines) {
-            if (line.Trim() == String.Empty || line.StartsWith('#')) continue;
-            tokens.AddRange(Tokenize(line));
-        }
+        Queue<Token> tokens = new Queue<Token>();
+        _chars = new Queue<char>(input.ToCharArray());
 
-        return tokens.AsReadOnly();
-    }
+        while (_chars.Count > 0) {
 
-    private List<Token> Tokenize(string line) {
-        List<Token> tokens = new List<Token>();
+            char chr = _chars.Peek(); 
+            
+            if(chr == '\n') _line++;
 
-        string token = string.Empty;
-        for (int i = 0; i < line.Length; i++) {
-            char c = line[i];
-
-            if (c == '\t') continue;
-
-            if (SEPARATORS.Contains(c)) {
-
-                token = token.Trim();
-                if (!string.IsNullOrEmpty(token))  tokens.Add(new Token(GetTokenType(token), token));
-
-                token = string.Empty;
-                if (c != ' ')
-                tokens.Add(new Token(GetTokenType(c.ToString()), c.ToString()));
+            switch (chr) {
+                case '(':
+                    tokens.Enqueue(Token(TokenType.OpenPrent, chr));
+                    Consume();
+                    continue;
+                case ')':
+                    tokens.Enqueue(Token(TokenType.ClosePrent, chr));
+                    Consume();
+                    continue;
+                case '*':
+                case '+':
+                case '-':
+                case '/':
+                case '%':
+                    tokens.Enqueue(Token(TokenType.BinaryOperator, chr));
+                    Consume();
+                    continue;
+                case '=':
+                    tokens.Enqueue(Token(TokenType.Equals, chr));
+                    Consume();
+                    continue;
+                case ';':
+                    tokens.Enqueue(Token(TokenType.Semi, chr));
+                    Consume();
+                    continue;
             }
-            else token += c;
+
+            if (char.IsDigit(chr)) {
+                string number = string.Empty;
+
+                while (_chars.Count > 0 && (char.IsDigit(_chars.Peek()) || _chars.Peek() == '.')) number += Consume();
+                
+                tokens.Enqueue(Token(TokenType.Number, number));
+            }
+
+            else if (char.IsLetter(chr)) {
+                string identifier = string.Empty;
+
+                while (_chars.Count > 0 && char.IsLetter(_chars.Peek())) identifier += Consume();
+
+                if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
+                    tokens.Enqueue(Token(reservedKeyWord, identifier));
+                else tokens.Enqueue(Token(TokenType.Identifier, identifier));
+            }
+
+            else if (IsSkippable(chr)) { Consume(); continue;}
+            else RustyErrorHandler.Error($"Unrecognized character \"{chr}\" on position: (chr: {_pos}, line: {_line})", 550);
         }
 
-        token = token.Trim();
-        if (!string.IsNullOrEmpty(token)) tokens.Add(new Token(GetTokenType(token), token));
-
+        tokens.Enqueue(Token(TokenType.EOF, "EndOfFile"));
         return tokens;
     }
 
-    private TokenType GetTokenType(string token) {
-        if (keywords.Contains(token)) return TokenType.Keyword;
-        if (token.StartsWith("@")) return TokenType.Decorator;
-
-        switch (token) {
-            case "+": case "-":
-            case "*": case "/":
-                return TokenType.MathOperator;
-            
-            case "0": case "1":
-            case "2": case "3":
-            case "4": case "5":
-            case "6": case "7":
-            case "8": case "9":
-                return TokenType.Number;
-            
-            case "'":
-            case "\"":
-                return TokenType.StringLiteral;
-            
-            case "i8": case "i16": case "i32": case "i128":
-            case "str": case "f32": case "f64":
-            case "u8": case "u16": case "u32": case "u64": case "u128":
-                return TokenType.VariableType;
-            
-            case "public": case "private": case "protected":
-                return TokenType.AccessModifier;
-
-            case "end": return TokenType.EndToken;
-            case ";": return TokenType.EOL;
-            default: return TokenType.Identifier;
-        }
+    private bool IsSkippable(char z) => (z == ' ' || z == '\n' || z == '\t' || z == '\r'); 
+    private Token Token(TokenType type, string value) => new Token(type, value);
+    private Token Token(TokenType type, char value) => new Token(type, value.ToString());
+    private char Consume() {
+        _pos++;
+        return  _chars.Dequeue() ;
     }
 }

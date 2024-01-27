@@ -12,12 +12,13 @@
             case "--version":
             case "-v":
                 string version = RustyCompiler.GetCompilerVersion();
-
+                
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($"Rusty JS Compiler");
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.Write($"» Rusty JS Compiler «");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write($" (v{version})");
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ResetColor();   
                 break;
             case "-f":
                 string ouputPath = "./";

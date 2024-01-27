@@ -6,11 +6,12 @@
     <RootNamespace>RustyJS_Compiler</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>RSJS</AssemblyName>
+    <AssemblyName>RSC</AssemblyName>
+    <ApplicationIcon>logo-rsjs.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Compiler\AST\Nodes\" />
+    <Content Include="logo-rsjs.ico" />
   </ItemGroup>
 
 </Project>
