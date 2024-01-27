@@ -41,6 +41,7 @@
                 case '+':
                 case '-':
                 case '/':
+                case '%':
                     tokens.Enqueue(Token(TokenType.BinaryOperator, chr));
                     Consume();
                     continue;
