@@ -7,7 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>RSC</AssemblyName>
+    <ApplicationIcon>logo-rsjs.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="logo-rsjs.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Compiler\AST\Nodes\" />
