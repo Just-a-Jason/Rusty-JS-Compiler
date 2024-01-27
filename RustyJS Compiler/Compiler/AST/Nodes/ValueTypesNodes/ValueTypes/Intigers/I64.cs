@@ -1,4 +1,4 @@
-﻿internal  class I64 : RuntimeValueTypeNode {
+﻿internal class I64 : RuntimeValueTypeNode {
     public override ValueType Type { get; } = ValueType.I64;
     public long Value { get; }
 
