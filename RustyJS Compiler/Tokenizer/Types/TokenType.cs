@@ -3,6 +3,6 @@
     BinaryOperator, OpenPrent, ClosePrent, Equals,
     MutKeyword, UmutKeyword, EndKeyWord, NameSpaceKeyWord,
     ReturnKeyWord, CompilerRuleSet, BooleanValue, ConstantKeyWord, Semi,
-    EOF
+    EOF, Null
 }
 
