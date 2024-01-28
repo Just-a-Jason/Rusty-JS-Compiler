@@ -12,11 +12,16 @@ internal class RustyParser {
         while (EndOfFile()) {
             tree.Root.Body.Add(ParseStatement());
         }
+        tree.VisualizeTree();
 
         RustyInterpreter interpreter = new RustyInterpreter();
         RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
 
-        tree.VisualizeTree();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write(RustyInterpreter.GetValue(result) + " ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(result);
+        Console.ForegroundColor = ConsoleColor.White;
     }
 
     private StatementNode ParseStatement() {

@@ -35,7 +35,7 @@ internal class RustyInterpreter {
                 result = GetValue(lhs) + GetValue(rhs); 
             break;
             case "-":
-                result = GetValue(rhs) - GetValue(rhs); 
+                result = GetValue(rhs) - GetValue(lhs); 
             break;
             case "*":
                 result = GetValue(rhs) * GetValue(lhs); 
@@ -65,10 +65,12 @@ internal class RustyInterpreter {
         return
             node.Type == ValueType.I8 || node.Type == ValueType.I16
             || node.Type == ValueType.I32 || node.Type == ValueType.I64
-            || node.Type == ValueType.I32 || node.Type == ValueType.F64;
+            || node.Type == ValueType.F32 || node.Type == ValueType.F64
+            || node.Type == ValueType.U8 || node.Type == ValueType.U16
+            || node.Type == ValueType.U32 || node.Type == ValueType.U64;
     }
 
-    private double GetValue(RuntimeValueTypeNode node) {
+    public static double GetValue(RuntimeValueTypeNode node) {
         switch(node.Type) {
             case ValueType.I8:
                 return ((I8)node).Value; 
@@ -78,7 +80,7 @@ internal class RustyInterpreter {
                 return ((I32)node).Value;
             case ValueType.I64:
                 return ((I64)node).Value;
-            case ValueType.F64:
+            case ValueType.F32:
                 return ((F32)node).Value;
             default:
                 return ((F64)node).Value;
@@ -86,30 +88,14 @@ internal class RustyInterpreter {
     }
 
     private RuntimeValueTypeNode GetValueType(NumericLiteralNode node) {
-        int decimals = CountDecimalPlaces(node.Value);
-        if (CountDecimalPlaces(node.Value) > 0) {
-            if (decimals <= F32.MaxDecimals) return new F32((float)node.Value);
-            else if(decimals <= F64.MaxDecimals) return new F64((float)node.Value);
-            RustyErrorHandler.Error($"Value: {node.Value} is too large for type (F32 or F64).", 1250);
-        }
-        else if (node.Value >= sbyte.MinValue && node.Value <= sbyte.MaxValue)
-            return new I8((sbyte)node.Value);
-        else if (node.Value >= ushort.MinValue && node.Value <= ushort.MaxValue)
-            return new I16((short)node.Value);
-        else if (node.Value >= int.MinValue && node.Value <= int.MaxValue)
-            return new I32((int)node.Value);
-        else if (node.Value >= long.MinValue && node.Value <= long.MaxValue)
-            return new I64((long)node.Value);
-
-        RustyErrorHandler.Error($"Value: {node.Value} is too large to handle!", 1250);
-        return null;
+        return GetValueType(node.Value);
     }
 
     private RuntimeValueTypeNode GetValueType(double value) {
         int decimals = CountDecimalPlaces(value);
-        if (CountDecimalPlaces(value) > 0) {
-            if (decimals <= F32.MaxDecimals) return new F32((float)value);
-            else if (decimals <= F64.MaxDecimals) return new F64((float)value);
+        if (decimals > 0) {
+            if (decimals <= F32.MaxDecimals) return new F32((float)Math.Round(value, decimals));
+            else if (decimals <= F64.MaxDecimals) return new F64(Math.Round(value, decimals));
             RustyErrorHandler.Error($"Value: {value} is too large for type (F32 or F64).", 1250);
         }
         else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
@@ -128,7 +114,7 @@ internal class RustyInterpreter {
     static int CountDecimalPlaces(double value) {
         string stringValue = value.ToString();
 
-        int decimalPointIndex = stringValue.IndexOf('.');
+        int decimalPointIndex = stringValue.IndexOf(',');
 
         if (decimalPointIndex == -1 || decimalPointIndex == stringValue.Length - 1) {
             return 0;
