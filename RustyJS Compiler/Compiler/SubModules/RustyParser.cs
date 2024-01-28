@@ -61,7 +61,12 @@ internal class RustyParser {
         }
 
         string variableName = ExpectToken(TokenType.Identifier, $"Variable name is excepted after mut | umut | const keyword!").Text;
+        
+        if (CurrentToken().TokenType == TokenType.Colon) {
+            ConsumeToken();
 
+        }
+        
         if (CurrentToken().TokenType == TokenType.Semi) {
             ConsumeToken();
             if(isConstant)  RustyErrorHandler.Error("The constant variable requires a value or expression!", 5000);
@@ -70,8 +75,10 @@ internal class RustyParser {
         }
 
         ExpectToken(TokenType.Equals, "\"=\" is required to assign a value to variable!");
+        VariableDeclarationNode node =  new VariableDeclarationNode(variableName, isConstant, isMuttable, ParseExpression());
 
-
+        ExpectToken(TokenType.Semi, "Expected semicolon \";\" token.");
+        return node;
     }
 
     private ExpressionNode ParseExpression() {
