@@ -41,8 +41,8 @@ internal class RustyInterpreter {
                 result = GetValue(rhs) * GetValue(lhs); 
             break;
             case "/":
-                try { result = GetValue(lhs) / GetValue(lhs); }
-                catch(DivideByZeroException) { RustyErrorHandler.Error($"Divide by zero excetion accured.", 2645); }
+                if(GetValue(lhs) == 0) RustyErrorHandler.Error($"Divide by zero exception accured.", 2645);
+                result = GetValue(lhs) / GetValue(lhs); 
                 break;
             case "%":
                 result = GetValue(lhs) % GetValue(rhs);
