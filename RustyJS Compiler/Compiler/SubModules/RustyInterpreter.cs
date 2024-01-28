@@ -7,6 +7,8 @@
                 return new Nil();
             case NodeType.BinaryExpression:
                 return EvaluateBinaryExpression((BinaryExpressionNode)node, env);
+            case NodeType.Identifier:
+                return EvaluateIdentifier((IdentifierNode)node, env);
             case NodeType.Program:
                 return EvaluateProgram((ProgramNode)node, env);
             default:
@@ -15,7 +17,10 @@
         }
     }
 
-    
+    private RuntimeValueTypeNode EvaluateIdentifier(IdentifierNode node, RustyEnvironment env) {
+        RuntimeValueTypeNode value = env.GetVariable(node.Symbol);
+    }
+
     private RuntimeValueTypeNode EvaluateProgram(ProgramNode program, RustyEnvironment env) {
         RuntimeValueTypeNode lastEvaluated = new Nil();
 
