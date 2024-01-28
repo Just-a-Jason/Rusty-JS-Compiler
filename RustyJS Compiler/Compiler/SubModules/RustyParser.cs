@@ -30,7 +30,38 @@ internal class RustyParser {
     }
 
     private StatementNode ParseStatement() {
-        return ParseExpression();
+        switch(CurrentToken().TokenType) {
+            // Variable declaration
+            case TokenType.ConstantKeyWord:
+            case TokenType.UmutKeyword:
+            case TokenType.MutKeyword:
+                return ParseVariableDeclaration();
+            default:
+                return ParseExpression();
+        }
+    }
+
+    private StatementNode ParseVariableDeclaration() {
+        TokenType tkt = ConsumeToken().TokenType;
+        bool isConstant;
+        bool isMuttable;
+
+        switch(tkt) {
+            case TokenType.UmutKeyword:
+                isConstant = true;
+                isMuttable = false;
+            break;
+            case TokenType.MutKeyword:
+                isMuttable = true;
+                break;
+            case TokenType.ConstantKeyWord:
+                isMuttable = false;
+                isConstant = true;
+                break;
+        }
+
+        string VariableName = ConsumeToken().Text;
+
     }
 
     private ExpressionNode ParseExpression() {
