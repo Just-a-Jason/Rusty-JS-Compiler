@@ -10,7 +10,17 @@
         { "true", TokenType.BooleanValue },
         { "false", TokenType.BooleanValue },
         { "const", TokenType.ConstantKeyWord },
-        { "nil",  TokenType.Null }
+        { "nil",  TokenType.Null },
+        { "i8",  TokenType.Int8 },
+        { "i16",  TokenType.Int16 },
+        { "i32",  TokenType.Int32 },
+        { "i64",  TokenType.Int64 },
+        { "u8",  TokenType.UInt8 },
+        { "u16",  TokenType.UInt16 },
+        { "u32",  TokenType.UInt32 },
+        { "u64",  TokenType.UInt64 },
+        { "F32",  TokenType.Float32 },
+        { "F64",  TokenType.Float64 },
     };
 
     private Queue<char>? _chars;

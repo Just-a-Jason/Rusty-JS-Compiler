@@ -4,7 +4,7 @@ internal class RustyInterpreter {
     public RuntimeValueTypeNode Evaluate(StatementNode node) {
         switch(node.Kind) {
             case NodeType.NumericLiteral:
-                return GetValueType((NumericLiteralNode)node);
+                return new F64(((NumericLiteralNode)node).Value);
             case NodeType.NullLiteral:
                 return new Nil();
             case NodeType.BinaryExpression:
@@ -30,26 +30,31 @@ internal class RustyInterpreter {
         
     private RuntimeValueTypeNode EvaluateNumericBinaryExpression(RuntimeValueTypeNode rhs, RuntimeValueTypeNode lhs, string Operator){
         double result = 0;
+        
+        double r = ((F64)rhs).Value;
+        double l = ((F64)lhs).Value;
+
         switch (Operator) {
             case "+":
-                result = GetValue(lhs) + GetValue(rhs); 
+                result = l + r; 
             break;
             case "-":
-                result = GetValue(rhs) - GetValue(lhs); 
+                result = r - l; 
             break;
             case "*":
-                result = GetValue(rhs) * GetValue(lhs); 
+                result = r * l; 
             break;
             case "/":
-                if(GetValue(lhs) == 0) RustyErrorHandler.Error($"Divide by zero exception accured.", 2645);
-                result = GetValue(lhs) / GetValue(lhs); 
+                if(l == 0) RustyErrorHandler.Error($"Divide by zero exception accured.", 2645);
+                result = l / r; 
                 break;
             case "%":
-                result = GetValue(lhs) % GetValue(rhs);
+                result = r % l;
                 break;
         }
-        return GetValueType(result);
+        return new F64(result);
     }
+
     private RuntimeValueTypeNode EvaluateBinaryExpression(BinaryExpressionNode node) {
         RuntimeValueTypeNode leftHandSide = Evaluate(node.Left);
         RuntimeValueTypeNode rightHandSide = Evaluate(node.Right);
