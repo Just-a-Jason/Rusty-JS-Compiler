@@ -18,7 +18,7 @@ internal class RustyParser {
         RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(RustyInterpreter.GetValue(result) + " ");
+        Console.Write(result + " ");
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(result);
         Console.ForegroundColor = ConsoleColor.White;
