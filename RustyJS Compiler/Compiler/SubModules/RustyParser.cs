@@ -15,12 +15,17 @@ internal class RustyParser {
         tree.VisualizeTree();
 
         RustyInterpreter interpreter = new RustyInterpreter();
-        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
+        RustyEnvironment globalScope = new RustyEnvironment(null);
+        
+        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root, globalScope);
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write(result + " ");
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(result);
+        if(!(result is Nil)) {
+            Console.WriteLine(RustyInterpreter.GetValue(result));
+        }
+        else Console.WriteLine(result);
         Console.ForegroundColor = ConsoleColor.White;
     }
 

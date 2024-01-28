@@ -1,4 +1,4 @@
-﻿internal class NumericLiteralNode : ExpressionNode{
+﻿internal class NumericLiteralNode : ExpressionNode {
     public override NodeType Kind { get; } = NodeType.NumericLiteral;
     public double Value { get; }
 

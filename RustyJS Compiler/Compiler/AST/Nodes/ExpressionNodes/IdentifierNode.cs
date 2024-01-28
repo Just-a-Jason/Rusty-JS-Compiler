@@ -1,8 +1,8 @@
 ﻿internal class IdentifierNode : ExpressionNode {
-    public NodeType Kind = NodeType.Identifier;
-    public string symbol;
+    public override NodeType Kind { get; } = NodeType.Identifier;
+    public string Symbol;
 
     public IdentifierNode(string symbol) {
-        this.symbol = symbol;
+        this.Symbol = symbol;
     }
 }

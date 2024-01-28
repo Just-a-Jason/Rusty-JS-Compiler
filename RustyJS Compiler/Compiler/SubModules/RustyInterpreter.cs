@@ -1,58 +1,69 @@
-﻿using System.Globalization;
-
-internal class RustyInterpreter {
-    public RuntimeValueTypeNode Evaluate(StatementNode node) {
+﻿internal class RustyInterpreter {
+    public RuntimeValueTypeNode Evaluate(StatementNode node, RustyEnvironment env) {
         switch(node.Kind) {
             case NodeType.NumericLiteral:
-                return GetValueType((NumericLiteralNode)node);
+                return new F64(((NumericLiteralNode)node).Value);
             case NodeType.NullLiteral:
                 return new Nil();
             case NodeType.BinaryExpression:
-                return EvaluateBinaryExpression((BinaryExpressionNode)node);
+                return EvaluateBinaryExpression((BinaryExpressionNode)node, env);
+            case NodeType.Identifier:
+                return EvaluateIdentifier((IdentifierNode)node, env);
             case NodeType.Program:
-                return EvaluateProgram((ProgramNode)node);
+                return EvaluateProgram((ProgramNode)node, env);
             default:
                 RustyErrorHandler.Error($"{node} is not setup for interpreter.", 2500);
                     return null;
         }
     }
 
-    
-    private RuntimeValueTypeNode EvaluateProgram(ProgramNode program) {
+    private RuntimeValueTypeNode EvaluateIdentifier(IdentifierNode node, RustyEnvironment env) {
+        RuntimeValueTypeNode value = env.GetVariable(node.Symbol);
+        return value;
+    }
+
+    private RuntimeValueTypeNode EvaluateProgram(ProgramNode program, RustyEnvironment env) {
         RuntimeValueTypeNode lastEvaluated = new Nil();
 
         foreach (StatementNode statement in program.Body) {
-            lastEvaluated = Evaluate(statement);
+            lastEvaluated = Evaluate(statement, env);
         }
 
-        return lastEvaluated;
+        if (lastEvaluated is Nil) return lastEvaluated;
+
+        return GetValueType(GetValue(lastEvaluated));
     }
         
     private RuntimeValueTypeNode EvaluateNumericBinaryExpression(RuntimeValueTypeNode rhs, RuntimeValueTypeNode lhs, string Operator){
         double result = 0;
+        
+        double r = ((F64)rhs).Value;
+        double l = ((F64)lhs).Value;
+
         switch (Operator) {
             case "+":
-                result = GetValue(lhs) + GetValue(rhs); 
+                result = l + r; 
             break;
             case "-":
-                result = GetValue(rhs) - GetValue(lhs); 
+                result = r - l; 
             break;
             case "*":
-                result = GetValue(rhs) * GetValue(lhs); 
+                result = r * l; 
             break;
             case "/":
-                if(GetValue(lhs) == 0) RustyErrorHandler.Error($"Divide by zero exception accured.", 2645);
-                result = GetValue(lhs) / GetValue(lhs); 
+                if(l == 0) RustyErrorHandler.Error($"Divide by zero exception accured.", 2645);
+                result = l / r; 
                 break;
             case "%":
-                result = GetValue(lhs) % GetValue(rhs);
+                result = r % l;
                 break;
         }
-        return GetValueType(result);
+        return new F64(result);
     }
-    private RuntimeValueTypeNode EvaluateBinaryExpression(BinaryExpressionNode node) {
-        RuntimeValueTypeNode leftHandSide = Evaluate(node.Left);
-        RuntimeValueTypeNode rightHandSide = Evaluate(node.Right);
+
+    private RuntimeValueTypeNode EvaluateBinaryExpression(BinaryExpressionNode node, RustyEnvironment env) {
+        RuntimeValueTypeNode leftHandSide = Evaluate(node.Left, env);
+        RuntimeValueTypeNode rightHandSide = Evaluate(node.Right, env);
 
         if (IsNumber(leftHandSide) && IsNumber(rightHandSide)) {
             return EvaluateNumericBinaryExpression(leftHandSide, rightHandSide, node.Operator);
@@ -72,6 +83,8 @@ internal class RustyInterpreter {
 
     public static double GetValue(RuntimeValueTypeNode node) {
         switch(node.Type) {
+            case ValueType.Boolean:
+                return Convert.ToInt32(((Bool)node).Value);
             case ValueType.I8:
                 return ((I8)node).Value; 
             case ValueType.I16:
@@ -80,6 +93,14 @@ internal class RustyInterpreter {
                 return ((I32)node).Value;
             case ValueType.I64:
                 return ((I64)node).Value;
+            case ValueType.U8:
+                return ((U8)node).Value;
+            case ValueType.U16:
+                return ((U16)node).Value;
+            case ValueType.U32:
+                return ((U32)node).Value;
+            case ValueType.U64:
+                return ((U64)node).Value;
             case ValueType.F32:
                 return ((F32)node).Value;
             default:
@@ -87,20 +108,31 @@ internal class RustyInterpreter {
         }
     }
 
-    private RuntimeValueTypeNode GetValueType(NumericLiteralNode node) {
+    public static RuntimeValueTypeNode GetValueType(NumericLiteralNode node) {
         return GetValueType(node.Value);
     }
 
-    private RuntimeValueTypeNode GetValueType(double value) {
+    public static RuntimeValueTypeNode GetValueType(double value) {
         int decimals = CountDecimalPlaces(value);
-        if (decimals > 0) {
+        if (decimals > 0)
+        {
             if (decimals <= F32.MaxDecimals) return new F32((float)Math.Round(value, decimals));
             else if (decimals <= F64.MaxDecimals) return new F64(Math.Round(value, decimals));
             RustyErrorHandler.Error($"Value: {value} is too large for type (F32 or F64).", 1250);
         }
+        else if (value == 1 || value == 0)
+            return new Bool(Convert.ToBoolean(value));
+        else if (value >= 0 && value <= byte.MaxValue)
+            return new U8((byte)value);
+        else if (value >= 0 && value <= ushort.MaxValue)
+            return new U16((ushort)value);
+        else if (value >= 0 && value <= uint.MaxValue)
+            return new U32((uint)value);
+        else if (value >= 0 && value <= ulong.MaxValue)
+            return new U64((uint)value);
         else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
             return new I8((sbyte)value);
-        else if (value >= ushort.MinValue && value <= ushort.MaxValue)
+        else if (value >= short.MinValue && value <= short.MaxValue)
             return new I16((short)value);
         else if (value >= int.MinValue && value <= int.MaxValue)
             return new I32((int)value);

@@ -2,8 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\RustyJS Compiler",
-    "\\RustyJS Compiler\\Tokenizer"
+    "\\RustyJS Compiler\\Compiler",
+    "\\RustyJS Compiler\\Compiler\\SubModules",
+    "\\RustyJS Compiler\\Tokenizer",
+    "\\RustyJS Compiler\\Tokenizer\\Types"
   ],
-  "SelectedNode": "\\RustyJS Compiler\\Tokenizer\\Tokenizer.cs",
+  "SelectedNode": "\\RustyJS Compiler\\Compiler\\SubModules\\RustyInterpreter.cs",
   "PreviewInSolutionExplorer": false
 }
