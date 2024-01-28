@@ -121,7 +121,7 @@
             return new U64((uint)value);
         else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
                     return new I8((sbyte)value);
-        else if (value >= ushort.MinValue && value <= ushort.MaxValue)
+        else if (value >= short.MinValue && value <= short.MaxValue)
                     return new I16((short)value);
          else if (value >= int.MinValue && value <= int.MaxValue)
                     return new I32((int)value);
