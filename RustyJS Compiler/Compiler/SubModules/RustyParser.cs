@@ -43,8 +43,8 @@ internal class RustyParser {
 
     private StatementNode ParseVariableDeclaration() {
         TokenType tkt = ConsumeToken().TokenType;
-        bool isConstant;
-        bool isMuttable;
+        bool isConstant = false;
+        bool isMuttable = true;
 
         switch(tkt) {
             case TokenType.UmutKeyword:
@@ -60,7 +60,17 @@ internal class RustyParser {
                 break;
         }
 
-        string VariableName = ConsumeToken().Text;
+        string variableName = ExpectToken(TokenType.Identifier, $"Variable name is excepted after mut | umut | const keyword!").Text;
+
+        if (CurrentToken().TokenType == TokenType.Semi) {
+            ConsumeToken();
+            if(isConstant)  RustyErrorHandler.Error("The constant variable requires a value or expression!", 5000);
+
+            return new VariableDeclarationNode(variableName, isConstant, isMuttable, null);
+        }
+
+        ExpectToken(TokenType.Equals, "\"=\" is required to assign a value to variable!");
+
 
     }
 
@@ -105,7 +115,7 @@ internal class RustyParser {
             case TokenType.OpenPrent:
                 ConsumeToken();
                 ExpressionNode value = ParseExpression();
-                Expect(TokenType.ClosePrent, "Closing parenthesis was expected.");
+                ExpectToken(TokenType.ClosePrent, "Closing parenthesis was expected.");
                 return value;
             default:
                 RustyErrorHandler.Error($"Unexpected token: \"{ConsumeToken().Text}\"", 950);
@@ -115,7 +125,7 @@ internal class RustyParser {
 
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
-    private Token Expect(TokenType type, string errorMsg) {
+    private Token ExpectToken(TokenType type, string errorMsg) {
         Token tk = ConsumeToken();
         if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg, 1110);
         return tk;

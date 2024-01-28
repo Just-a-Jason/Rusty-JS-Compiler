@@ -5,7 +5,13 @@
     public bool IsConstant { get; }
     public bool IsStatic { get; }
     public bool IsMutable { get; }
-    public string Name { get; }
+    public string VarName { get; }
 
+    public VariableDeclarationNode(string varname, bool isConstant, bool isMuttable, ExpressionNode? value) {
+        IsConstant = isConstant;
+        IsMutable = isMuttable;
+        VarName = varname;
+        Value = value;
+    }
 }
 
