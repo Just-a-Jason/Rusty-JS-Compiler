@@ -13,6 +13,15 @@ internal class RustyParser {
             tree.Root.Body.Add(ParseStatement());
         }
         tree.VisualizeTree();
+
+        RustyInterpreter interpreter = new RustyInterpreter();
+        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write(RustyInterpreter.GetValue(result) + " ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(result);
+        Console.ForegroundColor = ConsoleColor.White;
     }
 
     private StatementNode ParseStatement() {
@@ -54,6 +63,9 @@ internal class RustyParser {
                 return new IdentifierNode(ConsumeToken().Text);
             case TokenType.Number:
                 return new NumericLiteralNode(double.Parse(ConsumeToken().Text, CultureInfo.InvariantCulture));
+            case TokenType.Null:
+                ConsumeToken();
+                return new NullLiteralNode();
             case TokenType.OpenPrent:
                 ConsumeToken();
                 ExpressionNode value = ParseExpression();

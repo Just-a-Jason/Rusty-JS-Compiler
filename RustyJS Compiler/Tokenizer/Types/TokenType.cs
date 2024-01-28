@@ -2,7 +2,7 @@
     FunctionKeyWord, Number, VariableType, Identifier,
     BinaryOperator, OpenPrent, ClosePrent, Equals,
     MutKeyword, UmutKeyword, EndKeyWord, NameSpaceKeyWord,
-    ReturnKeyWord, CompilerRuleSet, BooleanValue, ConstantKeyWord, Semi,
-    EOF
+    ReturnKeyWord, BooleanValue, ConstantKeyWord, Semi,
+    EOF, Null
 }
 

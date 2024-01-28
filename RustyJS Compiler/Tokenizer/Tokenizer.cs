@@ -7,10 +7,10 @@
         { "end", TokenType.EndKeyWord },
         { "namespace", TokenType.NameSpaceKeyWord },
         { "ret", TokenType.ReturnKeyWord },
-        { "rustyCompiler", TokenType.CompilerRuleSet },
         { "true", TokenType.BooleanValue },
         { "false", TokenType.BooleanValue },
-        { "const", TokenType.ConstantKeyWord }
+        { "const", TokenType.ConstantKeyWord },
+        { "nil",  TokenType.Null }
     };
 
     private Queue<char>? _chars;
@@ -86,6 +86,6 @@
     private Token Token(TokenType type, char value) => new Token(type, value.ToString());
     private char Consume() {
         _pos++;
-        return  _chars.Dequeue() ;
+        return _chars.Dequeue();
     }
 }
