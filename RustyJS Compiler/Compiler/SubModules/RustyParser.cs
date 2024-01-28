@@ -15,7 +15,8 @@ internal class RustyParser {
         tree.VisualizeTree();
 
         RustyInterpreter interpreter = new RustyInterpreter();
-        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root);
+        RustyEnvironment globalScope = new RustyEnvironment(null);
+        RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root, globalScope);
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write(result + " ");

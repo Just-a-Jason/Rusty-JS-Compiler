@@ -1,14 +1,14 @@
 ﻿internal class RustyInterpreter {
-    public RuntimeValueTypeNode Evaluate(StatementNode node) {
+    public RuntimeValueTypeNode Evaluate(StatementNode node, RustyEnvironment env) {
         switch(node.Kind) {
             case NodeType.NumericLiteral:
                 return new F64(((NumericLiteralNode)node).Value);
             case NodeType.NullLiteral:
                 return new Nil();
             case NodeType.BinaryExpression:
-                return EvaluateBinaryExpression((BinaryExpressionNode)node);
+                return EvaluateBinaryExpression((BinaryExpressionNode)node, env);
             case NodeType.Program:
-                return EvaluateProgram((ProgramNode)node);
+                return EvaluateProgram((ProgramNode)node, env);
             default:
                 RustyErrorHandler.Error($"{node} is not setup for interpreter.", 2500);
                     return null;
@@ -16,11 +16,11 @@
     }
 
     
-    private RuntimeValueTypeNode EvaluateProgram(ProgramNode program) {
+    private RuntimeValueTypeNode EvaluateProgram(ProgramNode program, RustyEnvironment env) {
         RuntimeValueTypeNode lastEvaluated = new Nil();
 
         foreach (StatementNode statement in program.Body) {
-            lastEvaluated = Evaluate(statement);
+            lastEvaluated = Evaluate(statement, env);
         }
 
         if (lastEvaluated is Nil) return lastEvaluated;
@@ -55,9 +55,9 @@
         return new F64(result);
     }
 
-    private RuntimeValueTypeNode EvaluateBinaryExpression(BinaryExpressionNode node) {
-        RuntimeValueTypeNode leftHandSide = Evaluate(node.Left);
-        RuntimeValueTypeNode rightHandSide = Evaluate(node.Right);
+    private RuntimeValueTypeNode EvaluateBinaryExpression(BinaryExpressionNode node, RustyEnvironment env) {
+        RuntimeValueTypeNode leftHandSide = Evaluate(node.Left, env);
+        RuntimeValueTypeNode rightHandSide = Evaluate(node.Right, env);
 
         if (IsNumber(leftHandSide) && IsNumber(rightHandSide)) {
             return EvaluateNumericBinaryExpression(leftHandSide, rightHandSide, node.Operator);

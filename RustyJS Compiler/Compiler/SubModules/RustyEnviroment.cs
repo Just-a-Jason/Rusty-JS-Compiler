@@ -2,7 +2,7 @@
     private Dictionary<string, RuntimeValueTypeNode> _variables;
     private RustyEnvironment? _parent;
 
-    public RustyEnvironment(RustyEnvironment parent) {
+    public RustyEnvironment(RustyEnvironment? parent) {
         _variables = new Dictionary<string, RuntimeValueTypeNode>();
         _parent = parent;
     }
