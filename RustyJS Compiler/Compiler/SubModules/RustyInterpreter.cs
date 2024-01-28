@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-internal class RustyInterpreter {
+﻿internal class RustyInterpreter {
     public RuntimeValueTypeNode Evaluate(StatementNode node) {
         switch(node.Kind) {
             case NodeType.NumericLiteral:
@@ -25,7 +23,9 @@ internal class RustyInterpreter {
             lastEvaluated = Evaluate(statement);
         }
 
-        return lastEvaluated;
+        if (lastEvaluated is Nil) return lastEvaluated;
+
+        return GetValueType(GetValue(lastEvaluated));
     }
         
     private RuntimeValueTypeNode EvaluateNumericBinaryExpression(RuntimeValueTypeNode rhs, RuntimeValueTypeNode lhs, string Operator){
@@ -85,6 +85,14 @@ internal class RustyInterpreter {
                 return ((I32)node).Value;
             case ValueType.I64:
                 return ((I64)node).Value;
+            case ValueType.U8:
+                return ((U8)node).Value;
+            case ValueType.U16:
+                return ((U16)node).Value;
+            case ValueType.U32:
+                return ((U32)node).Value;
+            case ValueType.U64:
+                return ((U64)node).Value;
             case ValueType.F32:
                 return ((F32)node).Value;
             default:
@@ -92,25 +100,33 @@ internal class RustyInterpreter {
         }
     }
 
-    private RuntimeValueTypeNode GetValueType(NumericLiteralNode node) {
+    public static RuntimeValueTypeNode GetValueType(NumericLiteralNode node) {
         return GetValueType(node.Value);
     }
 
-    private RuntimeValueTypeNode GetValueType(double value) {
+    public static RuntimeValueTypeNode GetValueType(double value) {
         int decimals = CountDecimalPlaces(value);
         if (decimals > 0) {
             if (decimals <= F32.MaxDecimals) return new F32((float)Math.Round(value, decimals));
             else if (decimals <= F64.MaxDecimals) return new F64(Math.Round(value, decimals));
             RustyErrorHandler.Error($"Value: {value} is too large for type (F32 or F64).", 1250);
         }
+        else if (value >= 0 && value <= byte.MaxValue)
+            return new U8((byte)value);
+        else if (value >= 0 && value <= ushort.MaxValue)
+            return new U16((ushort)value);
+        else if (value >= 0 && value <= uint.MaxValue)
+            return new U32((uint)value);
+        else if (value >= 0 && value <= ulong.MaxValue)
+            return new U64((uint)value);
         else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
-            return new I8((sbyte)value);
+                    return new I8((sbyte)value);
         else if (value >= ushort.MinValue && value <= ushort.MaxValue)
-            return new I16((short)value);
-        else if (value >= int.MinValue && value <= int.MaxValue)
-            return new I32((int)value);
-        else if (value >= long.MinValue && value <= long.MaxValue)
-            return new I64((long)value);
+                    return new I16((short)value);
+         else if (value >= int.MinValue && value <= int.MaxValue)
+                    return new I32((int)value);
+          else if (value >= long.MinValue && value <= long.MaxValue)
+                    return new I64((long)value);
 
         RustyErrorHandler.Error($"Value: {value} is too large to handle!", 1250);
         return null;

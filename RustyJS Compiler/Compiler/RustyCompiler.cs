@@ -50,7 +50,7 @@ internal class RustyCompiler {
         DisplayOutput(this._compilationTime);
     }
 
-    public void CompileToRusty () { 
+    public void CompileToRusty() { 
     }
 
     private void DisplayOutput(int milisecounds) {

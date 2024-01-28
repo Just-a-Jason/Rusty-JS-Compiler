@@ -20,8 +20,7 @@ internal class RustyParser {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write(result + " ");
         Console.ForegroundColor = ConsoleColor.Red;
-        if(!(result is Nil))
-        {
+        if(!(result is Nil)) {
             Console.WriteLine(RustyInterpreter.GetValue(result));
         }
         else Console.WriteLine(result);
