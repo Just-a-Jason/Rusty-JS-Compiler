@@ -1,5 +1,5 @@
 ﻿internal class IdentifierNode : ExpressionNode {
-    public NodeType Kind = NodeType.Identifier;
+    public override NodeType Kind { get; } = NodeType.Identifier;
     public string Symbol;
 
     public IdentifierNode(string symbol) {

@@ -10,7 +10,7 @@
         { "true", TokenType.BooleanValue },
         { "false", TokenType.BooleanValue },
         { "const", TokenType.ConstantKeyWord },
-        { "nil",  TokenType.Null },
+        { "nil", TokenType.Null },
         { "i8",  TokenType.Int8 },
         { "i16",  TokenType.Int16 },
         { "i32",  TokenType.Int32 },

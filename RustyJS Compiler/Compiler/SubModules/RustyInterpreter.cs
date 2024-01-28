@@ -19,6 +19,7 @@
 
     private RuntimeValueTypeNode EvaluateIdentifier(IdentifierNode node, RustyEnvironment env) {
         RuntimeValueTypeNode value = env.GetVariable(node.Symbol);
+        return value;
     }
 
     private RuntimeValueTypeNode EvaluateProgram(ProgramNode program, RustyEnvironment env) {
@@ -82,6 +83,8 @@
 
     public static double GetValue(RuntimeValueTypeNode node) {
         switch(node.Type) {
+            case ValueType.Boolean:
+                return Convert.ToInt32(((Bool)node).Value);
             case ValueType.I8:
                 return ((I8)node).Value; 
             case ValueType.I16:
@@ -111,11 +114,14 @@
 
     public static RuntimeValueTypeNode GetValueType(double value) {
         int decimals = CountDecimalPlaces(value);
-        if (decimals > 0) {
+        if (decimals > 0)
+        {
             if (decimals <= F32.MaxDecimals) return new F32((float)Math.Round(value, decimals));
             else if (decimals <= F64.MaxDecimals) return new F64(Math.Round(value, decimals));
             RustyErrorHandler.Error($"Value: {value} is too large for type (F32 or F64).", 1250);
         }
+        else if (value == 1 || value == 0)
+            return new Bool(Convert.ToBoolean(value));
         else if (value >= 0 && value <= byte.MaxValue)
             return new U8((byte)value);
         else if (value >= 0 && value <= ushort.MaxValue)
@@ -125,13 +131,13 @@
         else if (value >= 0 && value <= ulong.MaxValue)
             return new U64((uint)value);
         else if (value >= sbyte.MinValue && value <= sbyte.MaxValue)
-                    return new I8((sbyte)value);
+            return new I8((sbyte)value);
         else if (value >= short.MinValue && value <= short.MaxValue)
-                    return new I16((short)value);
-         else if (value >= int.MinValue && value <= int.MaxValue)
-                    return new I32((int)value);
-          else if (value >= long.MinValue && value <= long.MaxValue)
-                    return new I64((long)value);
+            return new I16((short)value);
+        else if (value >= int.MinValue && value <= int.MaxValue)
+            return new I32((int)value);
+        else if (value >= long.MinValue && value <= long.MaxValue)
+            return new I64((long)value);
 
         RustyErrorHandler.Error($"Value: {value} is too large to handle!", 1250);
         return null;

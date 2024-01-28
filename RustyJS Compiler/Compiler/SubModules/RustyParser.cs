@@ -16,8 +16,6 @@ internal class RustyParser {
 
         RustyInterpreter interpreter = new RustyInterpreter();
         RustyEnvironment globalScope = new RustyEnvironment(null);
-
-        globalScope.DeclareVariableInScope("x", new I32(10));
         
         RuntimeValueTypeNode result = interpreter.Evaluate(tree.Root, globalScope);
 
