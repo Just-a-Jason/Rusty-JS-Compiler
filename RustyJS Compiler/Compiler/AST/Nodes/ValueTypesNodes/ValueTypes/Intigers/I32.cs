@@ -2,7 +2,7 @@
     public override ValueType Type { get; } = ValueType.I32;
     public int Value { get; }
 
-    public I32(int value) {
+    public I32(int value=0) {
         Value = value;
     }
 }

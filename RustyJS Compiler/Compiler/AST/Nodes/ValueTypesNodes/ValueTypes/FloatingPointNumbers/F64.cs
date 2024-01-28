@@ -3,7 +3,7 @@
     public override ValueType Type { get; } = ValueType.F64;
     public double Value { get; }
 
-    public F64(double value) { 
+    public F64(double value=0d) { 
         Value = value;
     }
 }

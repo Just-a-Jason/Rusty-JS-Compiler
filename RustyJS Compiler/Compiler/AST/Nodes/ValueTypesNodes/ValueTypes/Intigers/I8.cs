@@ -2,7 +2,7 @@
     public override ValueType Type { get; } = ValueType.I8;
     public sbyte Value { get; }
 
-    public I8(sbyte value) {
+    public I8(sbyte value=0) {
         Value = value;
     }
 }

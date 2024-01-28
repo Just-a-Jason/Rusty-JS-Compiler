@@ -1,4 +1,4 @@
-﻿internal class Tokenizer {
+﻿internal class RustyTokenizer {
 
     private Dictionary<string, TokenType> KEYWORDS = new Dictionary<string, TokenType>() {
         { "umut", TokenType.UmutKeyword },
@@ -22,7 +22,11 @@
         { "F32",  TokenType.Float32 },
         { "F64",  TokenType.Float64 },
         { "str", TokenType.String },
-        { "chr", TokenType.Char }
+        { "chr", TokenType.Char },
+        { "bool", TokenType.Bool },
+        { "auto", TokenType.Auto },
+        { "obj", TokenType.Object },
+        { "arr", TokenType.Array }
     };
 
     private Queue<char>? _chars;
@@ -68,9 +72,11 @@
                 case ':':
                     tokens.Enqueue(Token(TokenType.Colon, chr));
                     ConsumeCharacter();
-                    if(IsQueueEmpty() && NextChar() == 'i' || NextChar() == 'f' || NextChar() == 'u' || NextChar() == 's' || NextChar() == 'c') {
+                    if(IsQueueEmpty() && NextChar() == 'i' || NextChar() == 'f' || NextChar() == 'u' || NextChar() == 's' || NextChar() == 'c' || NextChar() == 'b' || NextChar() == 'o' || NextChar() == 'a') {
                         string typeToken = ConsumeCharacter().ToString();
-                        // a:i32 = 10;
+                        // mut a:i32 = 10;
+                        // umut a:i32;
+                        // const b:bool = true;
                         while (IsQueueEmpty() && NextChar() != '=' & NextChar() != ';' && !IsSkippable(NextChar())) { 
                             typeToken += ConsumeCharacter(); 
                         }

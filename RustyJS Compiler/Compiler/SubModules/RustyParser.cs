@@ -64,7 +64,9 @@ internal class RustyParser {
         
         if (CurrentToken().TokenType == TokenType.Colon) {
             ConsumeToken();
+            RuntimeValueTypeNode variableType = GetVariableType();
 
+            Console.WriteLine("Variable type of variable named: {0} is {1}", variableName, variableType);
         }
         
         if (CurrentToken().TokenType == TokenType.Semi) {
@@ -141,5 +143,39 @@ internal class RustyParser {
     private bool EndOfFile() => CurrentToken().TokenType != TokenType.EOF;
     private Token ConsumeToken() => _tokens.Dequeue();
     private Token CurrentToken() => _tokens.Peek();
+
+    private RuntimeValueTypeNode GetVariableType() {
+        Token tk = ConsumeToken();
+
+        switch (tk.TokenType) {
+            case TokenType.UInt8:
+                return new U8();
+            case TokenType.UInt16:
+                return new U16();
+            case TokenType.UInt32:
+                return new U32();
+            case TokenType.UInt64:
+                return new U64();
+            case TokenType.Int8:
+                return new I8();
+            case TokenType.Int16:
+                return new I16();
+            case TokenType.Int32:
+                return new I32();
+            case TokenType.Int64:
+                return new I64();
+            case TokenType.Float32:
+                return new F32();
+            case TokenType.Float64:
+                return new F64();
+
+            case TokenType.Bool:
+                return new Bool();
+
+            default:
+                RustyErrorHandler.Error($"Expected variable annotation type token.", 6300);
+                return null;
+        }
+    }
 }
 

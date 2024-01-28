@@ -2,7 +2,7 @@
     public override ValueType Type { get; } = ValueType.I64;
     public long Value { get; }
 
-    public I64(long value) { 
+    public I64(long value=0) { 
         Value = value;
     }
     
