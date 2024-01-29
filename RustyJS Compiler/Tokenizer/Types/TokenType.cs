@@ -1,8 +1,11 @@
 ﻿internal enum TokenType {
     // ValueType Tookens
     Identifier,
+    CloseBrace,
+    OpenBrace,
     Number,
     Colon,
+    Comma,
 
     // Operators
     BinaryOperator, 
@@ -15,6 +18,14 @@
     UmutKeyword, 
     MutKeyword, 
     
+    // Objects
+    ClassKeyword,
+    
+    // AcessModifiers
+    PublicKeyword,
+    PrivateKeyword,
+    ProtectedKeyword,
+
     // Scopes
     NameSpaceKeyWord,
     EndKeyWord,
