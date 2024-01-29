@@ -22,7 +22,7 @@ Hi there! This is my compiler for Rusty JS!
     _doc.query_all('p');
     _doc.query('p');
 ```
-```
+```rust
     fn add(x:f32,y:f32)
         ret x + y;
     end
