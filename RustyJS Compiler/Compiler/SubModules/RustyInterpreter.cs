@@ -25,7 +25,7 @@
     private RuntimeValueTypeNode EvaluateVariableDeclaration(VariableDeclarationNode declaration, RustyEnvironment env) {
         RuntimeValueTypeNode val = (declaration.Value == null) ? Evaluate(declaration.Value, env) : new Nil();
         
-        return env.DeclareVariableInScope(declaration.VarName, val);
+        return env.DeclareVariableInScope(declaration.VarName, val, declaration.IsMutable, declaration.IsConstant);
     }
 
     private RuntimeValueTypeNode EvaluateIdentifier(IdentifierNode ident, RustyEnvironment env) {

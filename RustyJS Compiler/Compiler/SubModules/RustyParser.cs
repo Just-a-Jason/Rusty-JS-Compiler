@@ -48,7 +48,6 @@ internal class RustyParser {
 
         switch(tkt) {
             case TokenType.UmutKeyword:
-                isConstant = true;
                 isMuttable = false;
             break;
             case TokenType.MutKeyword:
