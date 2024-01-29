@@ -28,7 +28,7 @@
             RustyErrorHandler.Error($"Identifier expected! Cannot assign value to: \"{node.Value}\"", 5750);
 
         string variableName = ((IdentifierNode)node.Assigne).Symbol;
-        return env.AssignVariableInScope(variableName, Evaluate(node.Value, env));
+        return env.AssigneVariableInScope(variableName, Evaluate(node.Value, env));
     }
 
     private RuntimeValueTypeNode EvaluateVariableDeclaration(VariableDeclarationNode declaration, RustyEnvironment env) {
