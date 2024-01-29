@@ -8,8 +8,8 @@ Hi there! This is my compiler for Rusty JS!
 ### Examples:
 ```
     class Person
-        public mut name:str;
-        private mut age:i32;
+        pub mut name:str;
+        priv mut age:i32;
         
         fn _init_(name:str, age:i32)
             $.name = name;
