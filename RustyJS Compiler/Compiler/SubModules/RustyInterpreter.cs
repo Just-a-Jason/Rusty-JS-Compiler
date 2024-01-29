@@ -11,6 +11,8 @@
                 return EvaluateIdentifier((IdentifierNode)node, env);
             case NodeType.Program:
                 return EvaluateProgram((ProgramNode)node, env);
+            case NodeType.AssignmentExpression:
+                return EvaluateAssignment((AssignmentExpressionNode)node, env);
 
             case NodeType.VariableDeclaration:
                 return EvaluateVariableDeclaration((VariableDeclarationNode)node, env);
@@ -21,6 +23,13 @@
         }
     }
 
+    private RuntimeValueTypeNode EvaluateAssignment(AssignmentExpressionNode node, RustyEnvironment env) {
+        if (node.Assigne.Kind != NodeType.Identifier)
+            RustyErrorHandler.Error($"Identifier expected! Cannot assign value to: \"{node.Value}\"", 5750);
+
+        string variableName = ((IdentifierNode)node.Assigne).Symbol;
+        return env.AssignVariableInScope(variableName, Evaluate(node.Value, env));
+    }
 
     private RuntimeValueTypeNode EvaluateVariableDeclaration(VariableDeclarationNode declaration, RustyEnvironment env) {
         RuntimeValueTypeNode val = (declaration.Value != null) ? Evaluate(declaration.Value, env) : new Nil();

@@ -32,10 +32,12 @@ internal class RustyParser {
     private StatementNode ParseStatement() {
         switch(CurrentToken().TokenType) {
             // Variable declaration
+
             case TokenType.ConstantKeyWord:
             case TokenType.UmutKeyword:
             case TokenType.MutKeyword:
                 return ParseVariableDeclaration();
+            
             default:
                 return ParseExpression();
         }
@@ -82,9 +84,24 @@ internal class RustyParser {
         return node;
     }
 
-    private ExpressionNode ParseExpression() {
-        return ParseAdditiveExpression();
+    private ExpressionNode ParseAssignmentExpression() {
+        ExpressionNode left = ParseAdditiveExpression();
+
+        if (CurrentToken().TokenType == TokenType.Equals) {
+            ConsumeToken();
+            ExpressionNode value = ParseAssignmentExpression();
+            return new AssignmentExpressionNode(left, value);
+        }
+
+        return left;
     }
+
+    private ExpressionNode ParseExpression() {
+        return ParseAssignmentExpression();
+    }
+
+
+
     private ExpressionNode ParseAdditiveExpression() {
         ExpressionNode left = ParseMultiplictitiveExpression();
 
@@ -97,6 +114,7 @@ internal class RustyParser {
 
         return left;
     }
+
     private ExpressionNode ParseMultiplictitiveExpression() {
         ExpressionNode left = ParsePrimaryExpression();
 

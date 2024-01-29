@@ -10,7 +10,7 @@
     NullLiteral,
 
     // Expressions
-    AssingnmentExpression,
+    AssignmentExpression,
     BinaryExpression,
     Identifier, 
 }
