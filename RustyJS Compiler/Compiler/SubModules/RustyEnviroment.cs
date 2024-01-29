@@ -12,7 +12,7 @@
             RustyVariable var = _variables[name];
 
             if (isConstant) RustyErrorHandler.Error($"Cannot re-assign constant \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
-            if (!var.Muttable) RustyErrorHandler.Error($"Cannot re-declare not mutable \"{name}\" variable in the same scope. Use: \"umut\" insted.", 2098);
+            if (!var.Muttable) RustyErrorHandler.Error($"Cannot re-declare not mutable \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
         } 
         _variables[name] = new RustyVariable(isConstant ,isMuttable, value);
         return value;
