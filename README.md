@@ -6,7 +6,7 @@ Hi there! This is my compiler for Rusty JS!
 
 
 ### Examples:
-```
+```rust
     class Person
         pub mut name:str;
         priv mut age:i32;
@@ -17,7 +17,7 @@ Hi there! This is my compiler for Rusty JS!
         end
     end
 ```
-```
+```rust
     log!("Hello world!");
     _doc.query_all('p');
     _doc.query('p');
