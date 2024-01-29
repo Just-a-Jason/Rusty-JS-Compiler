@@ -22,7 +22,7 @@ internal class RustyCompiler {
         RustyImporter importer = new RustyImporter();
         content = importer.ResolveImports(content);
 
-        Tokenizer tokenizer = new Tokenizer();
+        RustyTokenizer tokenizer = new RustyTokenizer();
         Queue<Token> tokens = tokenizer.Tokenize(content);
 
 

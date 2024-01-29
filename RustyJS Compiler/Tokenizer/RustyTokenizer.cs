@@ -1,4 +1,4 @@
-﻿internal class Tokenizer {
+﻿internal class RustyTokenizer {
 
     private Dictionary<string, TokenType> KEYWORDS = new Dictionary<string, TokenType>() {
         { "umut", TokenType.UmutKeyword },
@@ -21,6 +21,12 @@
         { "u64",  TokenType.UInt64 },
         { "F32",  TokenType.Float32 },
         { "F64",  TokenType.Float64 },
+        { "str", TokenType.String },
+        { "chr", TokenType.Char },
+        { "bool", TokenType.Bool },
+        { "auto", TokenType.Auto },
+        { "obj", TokenType.Object },
+        { "arr", TokenType.Array }
     };
 
     private Queue<char>? _chars;
@@ -41,11 +47,11 @@
             switch (chr) {
                 case '(':
                     tokens.Enqueue(Token(TokenType.OpenPrent, chr));
-                    Consume();
+                    ConsumeCharacter();
                     continue;
                 case ')':
                     tokens.Enqueue(Token(TokenType.ClosePrent, chr));
-                    Consume();
+                    ConsumeCharacter();
                     continue;
                 case '*':
                 case '+':
@@ -53,22 +59,42 @@
                 case '/':
                 case '%':
                     tokens.Enqueue(Token(TokenType.BinaryOperator, chr));
-                    Consume();
+                    ConsumeCharacter();
                     continue;
                 case '=':
                     tokens.Enqueue(Token(TokenType.Equals, chr));
-                    Consume();
+                    ConsumeCharacter();
                     continue;
                 case ';':
                     tokens.Enqueue(Token(TokenType.Semi, chr));
-                    Consume();
+                    ConsumeCharacter();
+                    continue;
+                case ':':
+                    tokens.Enqueue(Token(TokenType.Colon, chr));
+                    ConsumeCharacter();
+                    if(IsQueueEmpty() && NextChar() == 'i' || NextChar() == 'f' || NextChar() == 'u' || NextChar() == 's' || NextChar() == 'c' || NextChar() == 'b' || NextChar() == 'o' || NextChar() == 'a') {
+                        string typeToken = ConsumeCharacter().ToString();
+                        // mut a:i32 = 10;
+                        // umut a:i32;
+                        // const b:bool = true;
+                        while (IsQueueEmpty() && NextChar() != '=' & NextChar() != ';' && !IsSkippable(NextChar())) { 
+                            typeToken += ConsumeCharacter(); 
+                        }
+
+                        if (KEYWORDS.ContainsKey(typeToken)) {
+                            Console.WriteLine("Variable Type: "+ KEYWORDS[typeToken]);
+                            tokens.Enqueue(Token(KEYWORDS[typeToken], "VariableDeclarationType"));
+                            continue;
+                        }
+                        else RustyErrorHandler.Error($"Unsupported variable type: \"{typeToken}\" on position: (chr: {_pos}, line: {_line})", 5500);
+                    }
                     continue;
             }
 
             if (char.IsDigit(chr)) {
                 string number = string.Empty;
 
-                while (_chars.Count > 0 && (char.IsDigit(_chars.Peek()) || _chars.Peek() == '.')) number += Consume();
+                while (IsQueueEmpty() && (char.IsDigit(NextChar()) || NextChar() == '.')) number += ConsumeCharacter();
                 
                 tokens.Enqueue(Token(TokenType.Number, number));
             }
@@ -76,14 +102,14 @@
             else if (char.IsLetter(chr)) {
                 string identifier = string.Empty;
 
-                while (_chars.Count > 0 && char.IsLetter(_chars.Peek())) identifier += Consume();
+                while (IsQueueEmpty() && char.IsLetter(_chars.Peek())) identifier += ConsumeCharacter();
 
                 if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
                     tokens.Enqueue(Token(reservedKeyWord, identifier));
                 else tokens.Enqueue(Token(TokenType.Identifier, identifier));
             }
 
-            else if (IsSkippable(chr)) { Consume(); continue;}
+            else if (IsSkippable(chr)) { ConsumeCharacter(); continue;}
             else RustyErrorHandler.Error($"Unrecognized character \"{chr}\" on position: (chr: {_pos}, line: {_line})", 550);
         }
 
@@ -94,7 +120,9 @@
     private bool IsSkippable(char z) => (z == ' ' || z == '\n' || z == '\t' || z == '\r'); 
     private Token Token(TokenType type, string value) => new Token(type, value);
     private Token Token(TokenType type, char value) => new Token(type, value.ToString());
-    private char Consume() {
+    private char NextChar() => _chars.Peek();
+    private bool IsQueueEmpty() => _chars.Count > 0;
+    private char ConsumeCharacter() {
         _pos++;
         return _chars.Dequeue();
     }

@@ -1,27 +1,32 @@
 ﻿internal class RustyEnvironment {
-    private Dictionary<string, RuntimeValueTypeNode> _variables;
+    private Dictionary<string, RustyVariable> _variables;
     private RustyEnvironment? _parent;
 
     public RustyEnvironment(RustyEnvironment? parent) {
-        _variables = new Dictionary<string, RuntimeValueTypeNode>();
+        _variables = new Dictionary<string, RustyVariable>();
         _parent = parent;
     }
 
-    public RuntimeValueTypeNode DeclareVariableInScope(string name, RuntimeValueTypeNode value) {
-        if (_variables.ContainsKey(name)) RustyErrorHandler.Error($"Cannot declare \"{name}\" variable in the same scope.", 2098);
-        _variables[name] = value;
+    public RuntimeValueTypeNode DeclareVariableInScope(string name, RuntimeValueTypeNode value, bool isMuttable, bool isConstant) {
+        if (_variables.ContainsKey(name)) {
+            RustyVariable var = _variables[name];
+
+            if (isConstant) RustyErrorHandler.Error($"Cannot re-assign constant \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
+            if (!var.Muttable) RustyErrorHandler.Error($"Cannot re-declare not mutable \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
+        } 
+        _variables[name] = new RustyVariable(isConstant ,isMuttable, value);
         return value;
     }
 
     public RuntimeValueTypeNode AssignVariableInScope(string name, RuntimeValueTypeNode value) {
         RustyEnvironment scope = ResolveEnvironment(name);
-        scope._variables[name] = value;
+        scope._variables[name].Value = value;
         return value;
     }
 
     public RuntimeValueTypeNode GetVariable(string name) {
         RustyEnvironment scope = ResolveEnvironment(name);
-        return scope._variables[name];
+        return scope._variables[name].Value;
     }
 
 

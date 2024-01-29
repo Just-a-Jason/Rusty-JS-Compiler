@@ -1,5 +1,12 @@
 ﻿internal enum NodeType {
-    NumericLiteral, Identifier, BinaryExpression,
-    Program, NullLiteral
+    // Statements
+    Program, 
+    VariableDeclaration,
+    
+    // Expressions
+    BinaryExpression,
+    NumericLiteral, 
+    Identifier, 
+    NullLiteral
 }
 

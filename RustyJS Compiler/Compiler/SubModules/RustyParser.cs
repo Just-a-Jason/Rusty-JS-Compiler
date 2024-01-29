@@ -30,7 +30,56 @@ internal class RustyParser {
     }
 
     private StatementNode ParseStatement() {
-        return ParseExpression();
+        switch(CurrentToken().TokenType) {
+            // Variable declaration
+            case TokenType.ConstantKeyWord:
+            case TokenType.UmutKeyword:
+            case TokenType.MutKeyword:
+                return ParseVariableDeclaration();
+            default:
+                return ParseExpression();
+        }
+    }
+
+    private StatementNode ParseVariableDeclaration() {
+        TokenType tkt = ConsumeToken().TokenType;
+        bool isConstant = false;
+        bool isMuttable = true;
+
+        switch(tkt) {
+            case TokenType.UmutKeyword:
+                isMuttable = false;
+            break;
+            case TokenType.MutKeyword:
+                isMuttable = true;
+                break;
+            case TokenType.ConstantKeyWord:
+                isMuttable = false;
+                isConstant = true;
+                break;
+        }
+
+        string variableName = ExpectToken(TokenType.Identifier, $"Variable name is excepted after mut | umut | const keyword!").Text;
+        
+        if (CurrentToken().TokenType == TokenType.Colon) {
+            ConsumeToken();
+            RuntimeValueTypeNode variableType = GetVariableType();
+
+            Console.WriteLine("Variable type of variable named: {0} is {1}", variableName, variableType);
+        }
+        
+        if (CurrentToken().TokenType == TokenType.Semi) {
+            ConsumeToken();
+            if(isConstant)  RustyErrorHandler.Error("The constant variable requires a value or expression!", 5000);
+
+            return new VariableDeclarationNode(variableName, isConstant, isMuttable, null);
+        }
+
+        ExpectToken(TokenType.Equals, "\"=\" is required to assign a value to variable!");
+        VariableDeclarationNode node =  new VariableDeclarationNode(variableName, isConstant, isMuttable, ParseExpression());
+
+        ExpectToken(TokenType.Semi, "Expected semicolon \";\" token.");
+        return node;
     }
 
     private ExpressionNode ParseExpression() {
@@ -74,7 +123,7 @@ internal class RustyParser {
             case TokenType.OpenPrent:
                 ConsumeToken();
                 ExpressionNode value = ParseExpression();
-                Expect(TokenType.ClosePrent, "Closing parenthesis was expected.");
+                ExpectToken(TokenType.ClosePrent, "Closing parenthesis was expected.");
                 return value;
             default:
                 RustyErrorHandler.Error($"Unexpected token: \"{ConsumeToken().Text}\"", 950);
@@ -84,7 +133,7 @@ internal class RustyParser {
 
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
-    private Token Expect(TokenType type, string errorMsg) {
+    private Token ExpectToken(TokenType type, string errorMsg) {
         Token tk = ConsumeToken();
         if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg, 1110);
         return tk;
@@ -93,5 +142,39 @@ internal class RustyParser {
     private bool EndOfFile() => CurrentToken().TokenType != TokenType.EOF;
     private Token ConsumeToken() => _tokens.Dequeue();
     private Token CurrentToken() => _tokens.Peek();
+
+    private RuntimeValueTypeNode GetVariableType() {
+        Token tk = ConsumeToken();
+
+        switch (tk.TokenType) {
+            case TokenType.UInt8:
+                return new U8();
+            case TokenType.UInt16:
+                return new U16();
+            case TokenType.UInt32:
+                return new U32();
+            case TokenType.UInt64:
+                return new U64();
+            case TokenType.Int8:
+                return new I8();
+            case TokenType.Int16:
+                return new I16();
+            case TokenType.Int32:
+                return new I32();
+            case TokenType.Int64:
+                return new I64();
+            case TokenType.Float32:
+                return new F32();
+            case TokenType.Float64:
+                return new F64();
+
+            case TokenType.Bool:
+                return new Bool();
+
+            default:
+                RustyErrorHandler.Error($"Expected variable annotation type token.", 6300);
+                return null;
+        }
+    }
 }
 

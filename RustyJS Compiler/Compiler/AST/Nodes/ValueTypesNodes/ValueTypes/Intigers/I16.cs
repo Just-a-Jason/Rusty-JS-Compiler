@@ -2,7 +2,7 @@
     public override ValueType Type { get; } = ValueType.I16;
     public short Value { get; }
     
-    public I16(short value) {
+    public I16(short value=0) {
         Value = value;
     }
 }

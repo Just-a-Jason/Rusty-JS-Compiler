@@ -3,7 +3,7 @@
 
     private const string IMPORT_KEYWORD = "@import";
     
-    private Tokenizer _tokenizer = new Tokenizer();
+    private RustyTokenizer _tokenizer = new RustyTokenizer();
     
     private string _outFile = String.Empty;
     
