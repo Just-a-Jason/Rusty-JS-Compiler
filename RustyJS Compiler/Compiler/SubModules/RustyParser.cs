@@ -85,7 +85,7 @@ internal class RustyParser {
     }
 
     private ExpressionNode ParseAssignmentExpression() {
-        ExpressionNode left = ParseAdditiveExpression();
+        ExpressionNode left = ParseObjectExpression();
 
         if (CurrentToken().TokenType == TokenType.Equals) {
             ConsumeToken();
@@ -149,6 +149,23 @@ internal class RustyParser {
         }
     }
 
+    private ExpressionNode ParseObjectExpression() {
+        if (CurrentToken().TokenType != TokenType.ClassKeyword)
+            return ParseAdditiveExpression();
+        ConsumeToken();
+        ExpectToken(TokenType.Identifier, "A class name is required after class keyword.");
+        
+        List<RustyProperty> props = new List<RustyProperty>();
+        while (EndOfFile() && CurrentToken().TokenType != TokenType.EndKeyWord) {
+            if (IsAccessModifier()) {
+                // Property Declaration logic
+            }
+            ConsumeToken();
+        }
+        ExpectToken(TokenType.EndKeyWord, "Expected \"end\"  keyword after class definition.");
+        return new ObjectLiteralNode(props);
+    }
+
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
     private Token ExpectToken(TokenType type, string errorMsg) {
@@ -194,5 +211,7 @@ internal class RustyParser {
                 return null;
         }
     }
+
+    private bool IsAccessModifier() => CurrentToken().TokenType == TokenType.PublicKeyword || CurrentToken().TokenType == TokenType.PrivateKeyword || CurrentToken().TokenType == TokenType.ProtectedKeyword; 
 }
 

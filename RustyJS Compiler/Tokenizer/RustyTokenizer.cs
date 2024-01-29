@@ -8,6 +8,7 @@ internal class RustyTokenizer {
         { "fn", TokenType.FunctionKeyWord },
         { "end", TokenType.EndKeyWord },
         { "namespace", TokenType.NameSpaceKeyWord },
+        { "class", TokenType.ClassKeyword },
         { "pub", TokenType.PublicKeyword },
         { "priv", TokenType.PrivateKeyword },
         { "prot", TokenType.ProtectedKeyword },
