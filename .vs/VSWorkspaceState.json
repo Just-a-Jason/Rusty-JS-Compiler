@@ -7,6 +7,6 @@
     "\\RustyJS Compiler\\Tokenizer",
     "\\RustyJS Compiler\\Tokenizer\\Types"
   ],
-  "SelectedNode": "\\RustyJS Compiler\\Compiler\\SubModules\\RustyInterpreter.cs",
+  "SelectedNode": "\\RustyJS Compiler\\Compiler\\SubModules\\RustyEnviroment.cs",
   "PreviewInSolutionExplorer": false
 }
