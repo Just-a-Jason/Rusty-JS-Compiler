@@ -102,7 +102,7 @@
             else if (char.IsLetter(chr)) {
                 string identifier = string.Empty;
 
-                while (IsQueueEmpty() && char.IsLetter(_chars.Peek())) identifier += ConsumeCharacter();
+                while (IsQueueEmpty() && char.IsLetter(NextChar())) identifier += ConsumeCharacter();
 
                 if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
                     tokens.Enqueue(Token(reservedKeyWord, identifier));

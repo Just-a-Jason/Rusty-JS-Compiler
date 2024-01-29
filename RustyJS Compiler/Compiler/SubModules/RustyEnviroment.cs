@@ -2,7 +2,7 @@
     private Dictionary<string, RustyVariable> _variables;
     private RustyEnvironment? _parent;
 
-    public RustyEnvironment(RustyEnvironment? parent) {
+    public RustyEnvironment(RustyEnvironment? parent=null) {
         _variables = new Dictionary<string, RustyVariable>();
         _parent = parent;
     }
