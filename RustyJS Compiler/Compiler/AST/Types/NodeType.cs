@@ -3,10 +3,15 @@
     Program, 
     VariableDeclaration,
     
-    // Expressions
-    BinaryExpression,
+    //Literals
+    RustyProperty,
     NumericLiteral, 
+    ObjectLiteral,
+    NullLiteral,
+
+    // Expressions
+    AssignmentExpression,
+    BinaryExpression,
     Identifier, 
-    NullLiteral
 }
 

@@ -11,15 +11,23 @@
         if (_variables.ContainsKey(name)) {
             RustyVariable var = _variables[name];
 
-            if (isConstant) RustyErrorHandler.Error($"Cannot re-assign constant \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
-            if (!var.Muttable) RustyErrorHandler.Error($"Cannot re-declare not mutable \"{name}\" variable in the same scope. Use: \"mut\" insted.", 2098);
+            if (isConstant) RustyErrorHandler.Error($"Cannot re-assign constant \"{name}\" variable in the same scope. Use: \"mut\" instead.", 2098);
+            if (!var.Muttable) RustyErrorHandler.Error($"Cannot re-declare not mutable \"{name}\" variable in the same scope. Use: \"mut\" instead.", 2098);
         } 
         _variables[name] = new RustyVariable(isConstant ,isMuttable, value);
         return value;
     }
 
-    public RuntimeValueTypeNode AssignVariableInScope(string name, RuntimeValueTypeNode value) {
+    public RuntimeValueTypeNode AssigneVariableInScope(string name, RuntimeValueTypeNode value) {
         RustyEnvironment scope = ResolveEnvironment(name);
+        RustyVariable var = _variables[name];
+
+        if (var.Constant)
+            RustyErrorHandler.Error($"Cannot assigne value to a constant \"{name}\" variable. Use: \"mut\" instead.", 2098);
+        
+        if (!var.Muttable)
+            RustyErrorHandler.Error($"Cannot assigne value to not mutable \"{name}\" variable. Use: \"mut\" instead.", 2098);
+
         scope._variables[name].Value = value;
         return value;
     }

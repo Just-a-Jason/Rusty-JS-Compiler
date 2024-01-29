@@ -1,4 +1,6 @@
-﻿internal class RustyTokenizer {
+﻿using Windows.Security.Cryptography.Core;
+
+internal class RustyTokenizer {
 
     private Dictionary<string, TokenType> KEYWORDS = new Dictionary<string, TokenType>() {
         { "umut", TokenType.UmutKeyword },
@@ -6,6 +8,9 @@
         { "fn", TokenType.FunctionKeyWord },
         { "end", TokenType.EndKeyWord },
         { "namespace", TokenType.NameSpaceKeyWord },
+        { "pub", TokenType.PublicKeyword },
+        { "priv", TokenType.PrivateKeyword },
+        { "prot", TokenType.ProtectedKeyword },
         { "ret", TokenType.ReturnKeyWord },
         { "true", TokenType.BooleanValue },
         { "false", TokenType.BooleanValue },
@@ -29,28 +34,40 @@
         { "arr", TokenType.Array }
     };
 
+    private Queue<Token> _tokens;
     private Queue<char>? _chars;
     private long _line = 1;
     private long _pos = 0;
 
     public Queue<Token> Tokenize(string input) {
-
-        Queue<Token> tokens = new Queue<Token>();
+        _tokens = new Queue<Token>();
         _chars = new Queue<char>(input.ToCharArray());
 
         while (_chars.Count > 0) {
 
-            char chr = _chars.Peek(); 
-            
-            if(chr == '\n') _line++;
+            char chr = _chars.Peek();
+
+            if (chr == '\n') _line++;
 
             switch (chr) {
+                case '{':
+                    PushToken(TokenType.OpenBrace, chr);
+                    ConsumeCharacter();
+                    continue;
+                case ',':
+                    PushToken(TokenType.Comma, chr);
+                    ConsumeCharacter();
+                    continue;
+                case '}':
+                    PushToken(TokenType.CloseBrace, chr);
+                    ConsumeCharacter();
+                    continue;
                 case '(':
-                    tokens.Enqueue(Token(TokenType.OpenPrent, chr));
+                    PushToken(TokenType.OpenPrent, chr);
                     ConsumeCharacter();
                     continue;
                 case ')':
-                    tokens.Enqueue(Token(TokenType.ClosePrent, chr));
+                    PushToken(TokenType.ClosePrent, chr);
                     ConsumeCharacter();
                     continue;
                 case '*':
@@ -58,32 +75,33 @@
                 case '-':
                 case '/':
                 case '%':
-                    tokens.Enqueue(Token(TokenType.BinaryOperator, chr));
+                    PushToken(TokenType.BinaryOperator, chr);
                     ConsumeCharacter();
                     continue;
                 case '=':
-                    tokens.Enqueue(Token(TokenType.Equals, chr));
+                    PushToken(TokenType.Equals, chr);
                     ConsumeCharacter();
                     continue;
                 case ';':
-                    tokens.Enqueue(Token(TokenType.Semi, chr));
+                    PushToken(TokenType.Semi, chr);
                     ConsumeCharacter();
                     continue;
                 case ':':
-                    tokens.Enqueue(Token(TokenType.Colon, chr));
+                    PushToken(TokenType.Colon, chr);
                     ConsumeCharacter();
-                    if(IsQueueEmpty() && NextChar() == 'i' || NextChar() == 'f' || NextChar() == 'u' || NextChar() == 's' || NextChar() == 'c' || NextChar() == 'b' || NextChar() == 'o' || NextChar() == 'a') {
+                    if (IsQueueEmpty() && NextChar() == 'i' || NextChar() == 'f' || NextChar() == 'u' || NextChar() == 's' || NextChar() == 'c' || NextChar() == 'b' || NextChar() == 'o' || NextChar() == 'a') {
                         string typeToken = ConsumeCharacter().ToString();
+
+                        // const b:bool = true;
                         // mut a:i32 = 10;
                         // umut a:i32;
-                        // const b:bool = true;
-                        while (IsQueueEmpty() && NextChar() != '=' & NextChar() != ';' && !IsSkippable(NextChar())) { 
-                            typeToken += ConsumeCharacter(); 
+                        while (IsQueueEmpty() && NextChar() != '=' & NextChar() != ';' && !IsSkippable(NextChar())) {
+                            typeToken += ConsumeCharacter();
                         }
 
                         if (KEYWORDS.ContainsKey(typeToken)) {
-                            Console.WriteLine("Variable Type: "+ KEYWORDS[typeToken]);
-                            tokens.Enqueue(Token(KEYWORDS[typeToken], "VariableDeclarationType"));
+                            Console.WriteLine("Variable Type: " + KEYWORDS[typeToken]);
+                            PushToken(KEYWORDS[typeToken], "VariableDeclarationType");
                             continue;
                         }
                         else RustyErrorHandler.Error($"Unsupported variable type: \"{typeToken}\" on position: (chr: {_pos}, line: {_line})", 5500);
@@ -91,39 +109,53 @@
                     continue;
             }
 
-            if (char.IsDigit(chr)) {
-                string number = string.Empty;
-
-                while (IsQueueEmpty() && (char.IsDigit(NextChar()) || NextChar() == '.')) number += ConsumeCharacter();
-                
-                tokens.Enqueue(Token(TokenType.Number, number));
-            }
-
-            else if (char.IsLetter(chr)) {
-                string identifier = string.Empty;
-
-                while (IsQueueEmpty() && char.IsLetter(NextChar())) identifier += ConsumeCharacter();
-
-                if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
-                    tokens.Enqueue(Token(reservedKeyWord, identifier));
-                else tokens.Enqueue(Token(TokenType.Identifier, identifier));
-            }
-
-            else if (IsSkippable(chr)) { ConsumeCharacter(); continue;}
+            if (char.IsDigit(chr)) ReadNumberToken();
+            else if (char.IsLetter(chr)) ReadIdentifierToken();
+            else if (IsSkippable(chr)) {  continue; }
             else RustyErrorHandler.Error($"Unrecognized character \"{chr}\" on position: (chr: {_pos}, line: {_line})", 550);
         }
 
-        tokens.Enqueue(Token(TokenType.EOF, "EndOfFile"));
-        return tokens;
+        PushToken(TokenType.EOF, "EndOfFile");
+        return _tokens;
     }
 
-    private bool IsSkippable(char z) => (z == ' ' || z == '\n' || z == '\t' || z == '\r'); 
-    private Token Token(TokenType type, string value) => new Token(type, value);
-    private Token Token(TokenType type, char value) => new Token(type, value.ToString());
-    private char NextChar() => _chars.Peek();
-    private bool IsQueueEmpty() => _chars.Count > 0;
-    private char ConsumeCharacter() {
+
+    #region Chars Queue Actions 
+        private bool IsQueueEmpty() => _chars.Count > 0;
+        private char NextChar() => _chars.Peek();
+        private bool IsSkippable(char z) {
+            if(z == ' ' || z == '\n' || z == '\t' || z == '\r') {
+                ConsumeCharacter();
+                return true;
+            }
+            return false;
+        }
+        private char ConsumeCharacter() {
         _pos++;
         return _chars.Dequeue();
     }
+    #endregion
+
+    #region Tokens Actions
+        private Token Token(TokenType type, string value) => new Token(type, value);
+        private void PushToken(TokenType type, char value) => PushToken(type, value.ToString());
+        private void PushToken(TokenType type, string value) => _tokens.Enqueue(Token(type, value));
+        private void ReadIdentifierToken() {
+            string identifier = string.Empty;
+
+            while (IsQueueEmpty() && char.IsLetter(NextChar())) identifier += ConsumeCharacter();
+
+            if (KEYWORDS.TryGetValue(identifier, out TokenType reservedKeyWord))
+                PushToken(reservedKeyWord, identifier);
+            else PushToken(TokenType.Identifier, identifier);
+        } 
+        private void ReadNumberToken() {
+            string number = string.Empty;
+
+            while (IsQueueEmpty() && (char.IsDigit(NextChar()) || NextChar() == '.')) number += ConsumeCharacter();
+
+            PushToken(TokenType.Number, number);
+        }
+
+    #endregion
 }
