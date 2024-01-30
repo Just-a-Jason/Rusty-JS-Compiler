@@ -1,4 +1,4 @@
-﻿using Windows.Security.Cryptography.Core;
+﻿using Compiler.Tokenizer.Token;
 
 internal class RustyTokenizer {
 
@@ -8,6 +8,7 @@ internal class RustyTokenizer {
         { "fn", TokenType.FunctionKeyWord },
         { "end", TokenType.EndKeyWord },
         { "namespace", TokenType.NameSpaceKeyWord },
+        { "class", TokenType.ClassKeyword },
         { "pub", TokenType.PublicKeyword },
         { "priv", TokenType.PrivateKeyword },
         { "prot", TokenType.ProtectedKeyword },
@@ -137,7 +138,7 @@ internal class RustyTokenizer {
     #endregion
 
     #region Tokens Actions
-        private Token Token(TokenType type, string value) => new Token(type, value);
+        private Token Token(TokenType type, string value) => new Token(type, value, _pos, _line);
         private void PushToken(TokenType type, char value) => PushToken(type, value.ToString());
         private void PushToken(TokenType type, string value) => _tokens.Enqueue(Token(type, value));
         private void ReadIdentifierToken() {

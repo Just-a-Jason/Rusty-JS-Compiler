@@ -1,7 +1,27 @@
-﻿class Program {
+﻿using Compiler.CompilerSettings;
+using System.Text.Json;
+
+class Program {
+    #region Rusty Setup
+        private const string basicHtmlFile = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n    <head>\r\n        <meta charset=\"UTF-8\">\r\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n        <title>Rusty JS Project</title>\r\n    </head>\r\n    \r\n    <body>\r\n        <script src=\"main.js\"></script>    \r\n    </body>\r\n</html>";
+        private const string basicConfigFile = "{\r\n    \"compilerRules\": {\r\n        \"contextIsolation\":true\r\n    },\r\n    \"compilationRules\":{\r\n        \"outputDir\": \"src/build/\",\r\n        \"entry\": \"src/main\"\r\n    }\r\n}";
+        private const string htmlFilePath = "src/build/index.html";
+        private const string configFile = "rsc.config.json";
+    #endregion
+
     static void Main(string[] args) {
-       RunCLI(args);
+       if(args.Length > 0) RunCLI(args);
+       else RunCompilationFromFile();
     }
+
+    static void RunCompilationFromFile() {
+        if (!Path.Exists(configFile)) RustyErrorHandler.Error("File \"rsc.config.json\" does not exists! Use: \"RSC --init\" to create it.", 8000);
+
+        RustyRules rules = JsonSerializer.Deserialize<RustyRules>(File.ReadAllText(configFile));
+
+        new RustyCompiler(rules).CompileToJavaScript();
+    }
+
     static void RunCLI(string[] args)
     {
         if (args.Length < 1) return;
@@ -9,6 +29,25 @@
 
         switch (flag)
         {
+            case "--init":
+                if(!File.Exists("rsc.config.json")) File.WriteAllText(configFile, basicConfigFile);
+
+                if(!Directory.Exists("src/")) {
+                    Directory.CreateDirectory("src/");
+                    
+                    if(!File.Exists("src/main.rsjs")) File.Create("src/main.rsjs");
+                    
+                    if(!File.Exists(htmlFilePath)) {
+                        Directory.CreateDirectory("src/build");
+                        File.WriteAllText("src/build/index.html", basicHtmlFile);
+                    }
+                }
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("(Rusty JS Compiler) ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("Successfully initialized RSC config files.");
+                Console.ForegroundColor = ConsoleColor.White;
+                break;
             case "--version":
             case "-v":
                 string version = RustyCompiler.GetCompilerVersion();

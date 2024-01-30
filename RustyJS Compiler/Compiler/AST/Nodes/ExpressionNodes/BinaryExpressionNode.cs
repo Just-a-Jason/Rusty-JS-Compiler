@@ -9,4 +9,8 @@
         Right = right;
         Left = left;
     }
+
+    public override string ToString() {
+        return $"({Left}{Operator}{Right})";
+    }
 }

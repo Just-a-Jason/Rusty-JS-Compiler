@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Compiler.Tokenizer.Token;
+using System.Globalization;
 
 internal class RustyParser {
     private Queue<Token> _tokens;
@@ -7,10 +8,13 @@ internal class RustyParser {
         _tokens = tokens;    
     }
 
-    public void ParseTokens() {
+    public string ParseTokens() {
+        string outJs = string.Empty;
         AbstractSyntaxTree tree = new AbstractSyntaxTree(CreateProgramRootNode());
         while (EndOfFile()) {
-            tree.Root.Body.Add(ParseStatement());
+            StatementNode node = ParseStatement();
+            outJs += node.ToString();
+            tree.Root.Body.Add(node);
         }
         tree.VisualizeTree();
 
@@ -27,6 +31,7 @@ internal class RustyParser {
         }
         else Console.WriteLine(result);
         Console.ForegroundColor = ConsoleColor.White;
+        return outJs;
     }
 
     private StatementNode ParseStatement() {
@@ -85,11 +90,12 @@ internal class RustyParser {
     }
 
     private ExpressionNode ParseAssignmentExpression() {
-        ExpressionNode left = ParseAdditiveExpression();
+        ExpressionNode left = ParseObjectExpression();
 
         if (CurrentToken().TokenType == TokenType.Equals) {
             ConsumeToken();
             ExpressionNode value = ParseAssignmentExpression();
+            ExpectToken(TokenType.Semi, "Expected semicolon \";\" token.");
             return new AssignmentExpressionNode(left, value);
         }
 
@@ -99,8 +105,6 @@ internal class RustyParser {
     private ExpressionNode ParseExpression() {
         return ParseAssignmentExpression();
     }
-
-
 
     private ExpressionNode ParseAdditiveExpression() {
         ExpressionNode left = ParseMultiplictitiveExpression();
@@ -149,11 +153,60 @@ internal class RustyParser {
         }
     }
 
+    private ExpressionNode ParseObjectExpression() {
+        if (CurrentToken().TokenType != TokenType.ClassKeyword)
+            return ParseAdditiveExpression();
+        ConsumeToken();
+        string parentClassName = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
+
+        IdentifierNode? extends=null; 
+        
+        if(CurrentToken().TokenType == TokenType.Colon) {
+            ConsumeToken();
+            string extendIdent = ExpectToken(TokenType.Identifier, $"A class name for extended class is required! After \":\" ").Text;
+            extends = new IdentifierNode(extendIdent);
+        }
+        
+        List<RustyProperty> props = new List<RustyProperty>();
+        
+
+        while (EndOfFile() && CurrentToken().TokenType != TokenType.EndKeyWord) {
+            if(CurrentToken().TokenType == TokenType.ClassKeyword) {
+                Token tk = ConsumeToken();
+                string className = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
+
+                RustyErrorHandler.Error($"Cannot declare another class inside class. \"{parentClassName}\" > \"{className}\" (line: {tk.Line}, chr: {tk.Char})", 7000);
+            }
+            if (IsAccessModifier() || IsVariableDeclaration()) {
+                AccessModifier modifier = AccessModifier.Private;
+
+                if (IsAccessModifier()) {
+                    switch(ConsumeToken().TokenType) {
+                        case TokenType.PublicKeyword:
+                            modifier = AccessModifier.Public;
+                            break;
+                        case TokenType.ProtectedKeyword:
+                            modifier = AccessModifier.Protected;
+                            break;
+                    }
+                }
+                if (!IsVariableDeclaration()) RustyErrorHandler.Error($"Expected mut | umut after access modificator. (line: {CurrentToken().Line}, char: {CurrentToken().Char})", 9068);
+
+                VariableDeclarationNode node = (VariableDeclarationNode)ParseVariableDeclaration();
+
+                props.Add(new RustyProperty(node.VarName, modifier, node.Value));
+            }
+            else ConsumeToken();
+        }
+        ExpectToken(TokenType.EndKeyWord, "Expected \"end\"  keyword after class definition.");
+        return new ObjectLiteralNode(props, parentClassName, extends);
+    }
+
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
     private Token ExpectToken(TokenType type, string errorMsg) {
         Token tk = ConsumeToken();
-        if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg, 1110);
+        if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg + $" (line: {tk.Line}, chr: {tk.Char})", 1110);
         return tk;
     }
 
@@ -194,5 +247,8 @@ internal class RustyParser {
                 return null;
         }
     }
+
+    private bool IsAccessModifier() => CurrentToken().TokenType == TokenType.PublicKeyword || CurrentToken().TokenType == TokenType.PrivateKeyword || CurrentToken().TokenType == TokenType.ProtectedKeyword;
+    private bool IsVariableDeclaration() => CurrentToken().TokenType == TokenType.MutKeyword || CurrentToken().TokenType == TokenType.UmutKeyword;
 }
 

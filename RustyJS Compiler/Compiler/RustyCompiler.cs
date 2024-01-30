@@ -1,8 +1,11 @@
-﻿using System.Diagnostics;
+﻿using Compiler.CompilerSettings;
+using Compiler.Tokenizer.Token;
+using System.Diagnostics;
 using System.Reflection;
 
 internal class RustyCompiler {
     private int _compilationTime;
+    private RustyRules? _rules;
     private string? _entryPath;
     private string _outPath;
         
@@ -11,29 +14,40 @@ internal class RustyCompiler {
         _outPath = outputPath;
     }
 
+    public RustyCompiler(RustyRules? rules) {
+        _rules = rules;
+        if (rules == null) RustyErrorHandler.Error("\tInvalid syntax in rsc.json.config cannot load config.", 800);
+
+        if (rules.compilationRules.entry == null) RustyErrorHandler.Error("\tFile not found.", 100);
+        else _entryPath = RustyFileSystem.FindRustyFile(rules.compilationRules.entry);
+
+        _outPath = (rules.compilationRules.outputDir == null) ? "./" : rules.compilationRules.outputDir;
+
+    }
+
     public void CompileToJavaScript() {
         if (_entryPath == null) RustyErrorHandler.Error("\tFile not found.", 100);
         
-        CompilerOptions options = new CompilerOptions();
         DateTime startTime = DateTime.Now;
         
         string content = RustyFileSystem.ReadRustyFile(_entryPath);
             
-        RustyImporter importer = new RustyImporter();
-        content = importer.ResolveImports(content);
+        //RustyImporter importer = new RustyImporter();
+        //content = importer.ResolveImports(content);
 
         RustyTokenizer tokenizer = new RustyTokenizer();
         Queue<Token> tokens = tokenizer.Tokenize(content);
 
 
         RustyParser parser = new RustyParser(tokens);
-        parser.ParseTokens();
+        string outJs = parser.ParseTokens();
+        if (_rules != null && _rules.compilerRules.contextIsolation && outJs.Trim() != string.Empty) outJs = $"(()=>{{{outJs}}})();";
 
         _compilationTime = (DateTime.Now - startTime).Milliseconds;
-        SaveOutputFile();
+        SaveOutputFile(outJs);
     }
 
-    private void SaveOutputFile() {
+    private void SaveOutputFile(string outJS) {
         if (_outPath == "./" || Path.GetFileName(_outPath).Trim() == String.Empty) {
             string fileName = Path.GetFileNameWithoutExtension(this._entryPath);
             _outPath += $"{fileName}.js";
@@ -45,7 +59,7 @@ internal class RustyCompiler {
 
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-        RustyFileSystem.SaveFile(_outPath, "");
+        RustyFileSystem.SaveFile(_outPath, outJS);
 
         DisplayOutput(_compilationTime);
     }

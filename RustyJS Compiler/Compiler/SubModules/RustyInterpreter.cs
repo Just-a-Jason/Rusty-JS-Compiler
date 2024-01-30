@@ -27,18 +27,18 @@
         if (node.Assigne.Kind != NodeType.Identifier)
             RustyErrorHandler.Error($"Identifier expected! Cannot assign value to: \"{node.Value}\"", 5750);
 
-        string variableName = ((IdentifierNode)node.Assigne).Symbol;
+        string variableName = ((IdentifierNode)node.Assigne).Text;
         return env.AssigneVariableInScope(variableName, Evaluate(node.Value, env));
     }
 
-    private RuntimeValueTypeNode EvaluateVariableDeclaration(VariableDeclarationNode declaration, RustyEnvironment env) {
+    private RuntimeValueTypeNode EvaluateVariableDeclaration(VariableDeclarationNode declaration, RustyEnvironment env){
         RuntimeValueTypeNode val = (declaration.Value != null) ? Evaluate(declaration.Value, env) : new Nil();
         
         return env.DeclareVariableInScope(declaration.VarName, val, declaration.IsMutable, declaration.IsConstant);
     }
 
     private RuntimeValueTypeNode EvaluateIdentifier(IdentifierNode ident, RustyEnvironment env) {
-        RuntimeValueTypeNode value = env.GetVariable(ident.Symbol);
+        RuntimeValueTypeNode value = env.GetVariable(ident.Text);
         return value;
     }
 

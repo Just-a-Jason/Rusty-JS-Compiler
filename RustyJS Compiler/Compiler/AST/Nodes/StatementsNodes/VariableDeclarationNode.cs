@@ -13,5 +13,14 @@
         VarName = varname;
         Value = value;
     }
+
+    public override string ToString() {
+        string modifier = "var";
+
+        if (IsConstant) modifier = "const";
+        else if (!IsMutable) modifier = "let";
+        string assignment = (Value != null) ? $"={Value};" : ";"; 
+        return $"{modifier} {VarName}{assignment}";
+    }
 }
 

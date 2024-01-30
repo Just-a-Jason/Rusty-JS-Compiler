@@ -1,4 +1,6 @@
-﻿internal class RustyImporter {
+﻿using Compiler.Tokenizer.Token;
+
+internal class RustyImporter {
     private Dictionary<string, string> _imports = new Dictionary<string, string>();
 
     private const string IMPORT_KEYWORD = "@import";
