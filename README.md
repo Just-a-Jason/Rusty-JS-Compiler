@@ -48,9 +48,11 @@ Hi there! This is my compiler for Rusty JS!
 ```
 
 #### Commands
-`RSC -v`
-`RSC -f file.rsjs`
-`RSC -f file.rsjs -o build.js`
+`RSC -v` or `RSC --version` - Display compiler version.
+`RSC -f file.rsjs` - Compiles specific file.
+`RSC -f file.rsjs -o build.js` - Compiles specific file and saves it in given path.
+`RSC --init` - Initialize an empty new RustyJs project. 
+`RSC` - Compiles files based on `rsjs.config.json`
 
 ![logo-rsjs](https://github.com/Just-a-Jason/Rusty-JS-Compiler/assets/88512392/17cb5674-1559-4dcc-9ecf-8b9298fa7d7f)
 
