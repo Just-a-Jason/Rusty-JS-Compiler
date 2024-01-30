@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using Compiler.CompilerSettings;
+using System.Diagnostics;
 using System.Reflection;
 
 internal class RustyCompiler {
+    private RustyRules? _rules;
     private int _compilationTime;
     private string? _entryPath;
     private string _outPath;
@@ -11,6 +13,17 @@ internal class RustyCompiler {
         _outPath = outputPath;
     }
 
+    public RustyCompiler(RustyRules? rules) {
+        _rules = rules;
+        if (rules == null) RustyErrorHandler.Error("\tInvalid syntax in rsc.json.config cannot load config.", 800);
+
+        if (rules.compilationRules.entry == null) RustyErrorHandler.Error("\tFile not found.", 100);
+        else _entryPath = RustyFileSystem.FindRustyFile(rules.compilationRules.entry);
+
+        _outPath = (rules.compilationRules.outputDir == null) ? "./" : rules.compilationRules.outputDir;
+
+    }
+
     public void CompileToJavaScript() {
         if (_entryPath == null) RustyErrorHandler.Error("\tFile not found.", 100);
         
@@ -18,8 +31,8 @@ internal class RustyCompiler {
         
         string content = RustyFileSystem.ReadRustyFile(_entryPath);
             
-        RustyImporter importer = new RustyImporter();
-        content = importer.ResolveImports(content);
+        //RustyImporter importer = new RustyImporter();
+        //content = importer.ResolveImports(content);
 
         RustyTokenizer tokenizer = new RustyTokenizer();
         Queue<Token> tokens = tokenizer.Tokenize(content);
@@ -27,6 +40,7 @@ internal class RustyCompiler {
 
         RustyParser parser = new RustyParser(tokens);
         string outJs = parser.ParseTokens();
+        if (_rules != null && _rules.compilerRules.contextIsolation) outJs = $"(()=>{{{outJs}}})();";
 
         _compilationTime = (DateTime.Now - startTime).Milliseconds;
         SaveOutputFile(outJs);

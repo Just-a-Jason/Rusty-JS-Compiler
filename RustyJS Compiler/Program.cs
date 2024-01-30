@@ -19,7 +19,7 @@ class Program {
 
         RustyRules rules = JsonSerializer.Deserialize<RustyRules>(File.ReadAllText(configFile));
 
-        new RustyCompiler(rules.compilationRules.entry, rules.compilationRules.outputDir).CompileToJavaScript();
+        new RustyCompiler(rules).CompileToJavaScript();
     }
 
     static void RunCLI(string[] args)
