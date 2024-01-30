@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Windows.UI.WebUI;
 
 internal class RustyParser {
     private Queue<Token> _tokens;
@@ -156,7 +157,14 @@ internal class RustyParser {
             return ParseAdditiveExpression();
         ConsumeToken();
         string parentClassName = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
-      
+
+        IdentifierNode? extends=null; 
+        
+        if(CurrentToken().TokenType == TokenType.Colon) {
+            ConsumeToken();
+            string extendIdent = ExpectToken(TokenType.Identifier, $"A class name for extended class is required! After \":\" ").Text;
+            extends = new IdentifierNode(extendIdent);
+        }
         
         List<RustyProperty> props = new List<RustyProperty>();
         while (EndOfFile() && CurrentToken().TokenType != TokenType.EndKeyWord) {
@@ -172,14 +180,14 @@ internal class RustyParser {
             ConsumeToken();
         }
         ExpectToken(TokenType.EndKeyWord, "Expected \"end\"  keyword after class definition.");
-        return new ObjectLiteralNode(props, parentClassName);
+        return new ObjectLiteralNode(props, parentClassName, extends);
     }
 
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
 
     private Token ExpectToken(TokenType type, string errorMsg) {
         Token tk = ConsumeToken();
-        if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg, 1110);
+        if (tk.TokenType != type) RustyErrorHandler.Error(errorMsg + $" (line: {tk.Line}, chr: {tk.Char})", 1110);
         return tk;
     }
 
