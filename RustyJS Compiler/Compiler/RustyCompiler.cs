@@ -27,13 +27,13 @@ internal class RustyCompiler {
 
 
         RustyParser parser = new RustyParser(tokens);
-        parser.ParseTokens();
+        string outJs = parser.ParseTokens();
 
         _compilationTime = (DateTime.Now - startTime).Milliseconds;
-        SaveOutputFile();
+        SaveOutputFile(outJs);
     }
 
-    private void SaveOutputFile() {
+    private void SaveOutputFile(string outJS) {
         if (_outPath == "./" || Path.GetFileName(_outPath).Trim() == String.Empty) {
             string fileName = Path.GetFileNameWithoutExtension(this._entryPath);
             _outPath += $"{fileName}.js";
@@ -45,7 +45,7 @@ internal class RustyCompiler {
 
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-        RustyFileSystem.SaveFile(_outPath, "");
+        RustyFileSystem.SaveFile(_outPath, outJS);
 
         DisplayOutput(_compilationTime);
     }

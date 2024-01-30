@@ -7,10 +7,13 @@ internal class RustyParser {
         _tokens = tokens;    
     }
 
-    public void ParseTokens() {
+    public string ParseTokens() {
+        string outJs = string.Empty;
         AbstractSyntaxTree tree = new AbstractSyntaxTree(CreateProgramRootNode());
         while (EndOfFile()) {
-            tree.Root.Body.Add(ParseStatement());
+            StatementNode node = ParseStatement();
+            outJs += node.ToString();
+            tree.Root.Body.Add(node);
         }
         tree.VisualizeTree();
 
@@ -27,6 +30,7 @@ internal class RustyParser {
         }
         else Console.WriteLine(result);
         Console.ForegroundColor = ConsoleColor.White;
+        return outJs;
     }
 
     private StatementNode ParseStatement() {
@@ -100,8 +104,6 @@ internal class RustyParser {
         return ParseAssignmentExpression();
     }
 
-
-
     private ExpressionNode ParseAdditiveExpression() {
         ExpressionNode left = ParseMultiplictitiveExpression();
 
@@ -162,7 +164,7 @@ internal class RustyParser {
                 Token tk = ConsumeToken();
                 string className = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
 
-                RustyErrorHandler.Error($"Cannot declare another class inside class. \"{parentClassName}\" > \"{className}\" at: {tk.Line}, {tk.Char}", 7000);
+                RustyErrorHandler.Error($"Cannot declare another class inside class. \"{parentClassName}\" > \"{className}\" (line: {tk.Line}, chr: {tk.Char})", 7000);
             }
             if (IsAccessModifier()) {
                 // Property Declaration logic
@@ -170,7 +172,7 @@ internal class RustyParser {
             ConsumeToken();
         }
         ExpectToken(TokenType.EndKeyWord, "Expected \"end\"  keyword after class definition.");
-        return new ObjectLiteralNode(props);
+        return new ObjectLiteralNode(props, parentClassName);
     }
 
     private ProgramNode CreateProgramRootNode() => new ProgramNode();
