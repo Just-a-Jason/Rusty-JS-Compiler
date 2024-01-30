@@ -1,4 +1,4 @@
-﻿using Windows.Security.Cryptography.Core;
+﻿using Compiler.Tokenizer.Token;
 
 internal class RustyTokenizer {
 

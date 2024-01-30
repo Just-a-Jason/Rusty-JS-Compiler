@@ -1,10 +1,11 @@
 ﻿using Compiler.CompilerSettings;
+using Compiler.Tokenizer.Token;
 using System.Diagnostics;
 using System.Reflection;
 
 internal class RustyCompiler {
-    private RustyRules? _rules;
     private int _compilationTime;
+    private RustyRules? _rules;
     private string? _entryPath;
     private string _outPath;
         

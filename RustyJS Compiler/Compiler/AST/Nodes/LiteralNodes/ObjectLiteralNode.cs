@@ -10,11 +10,22 @@
         Name = name;
     }
 
+    private string CompileProperties() {
+        if (Properties.Count==0) return string.Empty;
+
+        string props = string.Empty;
+
+        foreach(RustyProperty prop in Properties) props += prop.ToString();
+
+
+        return $"constructor(){{{props}}}";
+    }
+
     public override string ToString() {
         string objectBase = $"class {Name}";
         if (Extends != null) {
             objectBase += $" extends {Extends.Text}";
         }
-        return $"{objectBase}{{}}";
+        return $"{objectBase}{{{CompileProperties()}}}";
     }
 }
