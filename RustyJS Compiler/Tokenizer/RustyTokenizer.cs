@@ -138,7 +138,7 @@ internal class RustyTokenizer {
     #endregion
 
     #region Tokens Actions
-        private Token Token(TokenType type, string value) => new Token(type, value);
+        private Token Token(TokenType type, string value) => new Token(type, value, _pos, _line);
         private void PushToken(TokenType type, char value) => PushToken(type, value.ToString());
         private void PushToken(TokenType type, string value) => _tokens.Enqueue(Token(type, value));
         private void ReadIdentifierToken() {

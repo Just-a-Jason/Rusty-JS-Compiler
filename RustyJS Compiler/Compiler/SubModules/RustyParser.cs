@@ -153,10 +153,17 @@ internal class RustyParser {
         if (CurrentToken().TokenType != TokenType.ClassKeyword)
             return ParseAdditiveExpression();
         ConsumeToken();
-        ExpectToken(TokenType.Identifier, "A class name is required after class keyword.");
+        string parentClassName = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
+      
         
         List<RustyProperty> props = new List<RustyProperty>();
         while (EndOfFile() && CurrentToken().TokenType != TokenType.EndKeyWord) {
+            if(CurrentToken().TokenType == TokenType.ClassKeyword) {
+                Token tk = ConsumeToken();
+                string className = ExpectToken(TokenType.Identifier, "A class name is required after class keyword.").Text;
+
+                RustyErrorHandler.Error($"Cannot declare another class inside class. \"{parentClassName}\" > \"{className}\" at: {tk.Line}, {tk.Char}", 7000);
+            }
             if (IsAccessModifier()) {
                 // Property Declaration logic
             }
