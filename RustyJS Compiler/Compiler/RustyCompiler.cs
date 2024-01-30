@@ -41,7 +41,7 @@ internal class RustyCompiler {
 
         RustyParser parser = new RustyParser(tokens);
         string outJs = parser.ParseTokens();
-        if (_rules != null && _rules.compilerRules.contextIsolation) outJs = $"(()=>{{{outJs}}})();";
+        if (_rules != null && _rules.compilerRules.contextIsolation && outJs.Trim() != string.Empty) outJs = $"(()=>{{{outJs}}})();";
 
         _compilationTime = (DateTime.Now - startTime).Milliseconds;
         SaveOutputFile(outJs);
