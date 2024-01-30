@@ -2,7 +2,7 @@
 
 Hi there! This is my compiler for Rusty JS! 
 ## What's Rusty JS?
-> Rusty JS is a compiler wich allows you to write clean Rust look alike code.
+> Rusty JS is a compiler wich allows you to write clean Rust look alike code and compile it into Vanilla JavaScript.
 
 
 ### Examples:
