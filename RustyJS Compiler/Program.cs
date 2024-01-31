@@ -18,7 +18,11 @@ class Program {
         if (!Path.Exists(configFile)) RustyErrorHandler.Error("File \"rsc.config.json\" does not exists! Use: \"RSC --init\" to create it.", 8000);
 
         RustyRules rules = JsonSerializer.Deserialize<RustyRules>(File.ReadAllText(configFile));
-
+        if (rules.compilationRules.includePaths != null) {
+            foreach(string path in rules.compilationRules.includePaths) {
+                new RustyCompiler(path, path).CompileToJavaScript();
+            }
+        } 
         new RustyCompiler(rules).CompileToJavaScript();
     }
 

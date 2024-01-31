@@ -25,9 +25,6 @@
         if (var.Constant)
             RustyErrorHandler.Error($"Cannot assigne value to a constant \"{name}\" variable. Use: \"mut\" instead.", 2098);
         
-        if (!var.Muttable)
-            RustyErrorHandler.Error($"Cannot assigne value to not mutable \"{name}\" variable. Use: \"mut\" instead.", 2098);
-
         scope._variables[name].Value = value;
         return value;
     }

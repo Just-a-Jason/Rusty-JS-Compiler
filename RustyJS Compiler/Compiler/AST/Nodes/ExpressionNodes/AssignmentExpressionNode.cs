@@ -7,4 +7,6 @@
         Assigne = assignment;
         Value = value;
     }
+
+    public override string ToString() => $"{Assigne}={Value};";
 }

@@ -1,7 +1,7 @@
 ﻿internal class ObjectLiteralNode : ExpressionNode {
-    public override NodeType Kind { get; } = NodeType.NullLiteral;
+    public override NodeType Kind { get; } = NodeType.ObjectLiteral;
     public List<RustyProperty> Properties { get; }
-    public IdentifierNode Extends { get; }
+    public IdentifierNode? Extends { get; }
     public string Name { get; }
 
     public ObjectLiteralNode(List<RustyProperty> properties, string name, IdentifierNode? extends = null) {
